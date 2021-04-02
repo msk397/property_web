@@ -7,7 +7,7 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    component: () => import("../views/dashboard/pages/examples/Sign-in"),
+    component: () => import("../views/dashboard/Sign-in"),
 /*    children: [
       {
         path: "/",
@@ -69,7 +69,7 @@ const routes = [
         path: "/dashboard/pages/examples/sign-in",
         name: "dashboard-pages-examples-sign-in",
         component: () =>
-          import("../views/dashboard/pages/examples/Sign-in.vue"),
+          import("../views/dashboard/Sign-in.vue"),
       },
     ],
   },
