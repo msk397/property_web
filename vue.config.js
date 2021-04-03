@@ -47,7 +47,7 @@ module.exports = {
   },
   devServer: {
     /* 自动打开浏览器 */
-    open: true,
+    open:false,
     /* 设置为0.0.0.0则所有的地址均能访问 */
     host: '0.0.0.0',
     /*端口号*/
@@ -58,7 +58,7 @@ module.exports = {
     proxy:{
       '/api': {
         /* 目标代理服务器地址 */
-        target: 'http://1.15.184.95:8080/',
+        target: 'http://127.0.0.1:8000/',
         /* 允许跨域 */
         changeOrigin: true,
         pathRewrite: {

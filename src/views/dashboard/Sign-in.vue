@@ -19,7 +19,7 @@
                 <v-row justify="center">
                   <v-col cols="12" md="10">
                     <v-radio-group
-                        v-model="choose"
+                        v-model="signin.choose"
                         row
                         mandatory
                     >
@@ -39,7 +39,7 @@
                         outlined
                         prepend-inner-icon="mdi-account-outline"
                         hide-details
-                        v-model="account_value"
+                        v-model="signin.account"
                     ></v-text-field>
 
                     <v-text-field
@@ -51,7 +51,7 @@
                         prepend-inner-icon="mdi-lock-open"
                         hide-details
                         class="mt-6"
-                        v-model="password_value"
+                        v-model="signin.passwd"
                     ></v-text-field>
 
                     <div class="d-flex align-center justify-space-between mt-4">
@@ -83,23 +83,22 @@
 export default {
   data () {
     return {
-      choose:'',
-      account_value:'',
-      password_value:'',
+      signin:{
+        choose:"",
+        account:"",
+        passwd:"",
+      },
       checkbox: true,
     }
   },
   methods:{
     asd:function (){
-      console.log(this.choose);
-      console.log(this.account_value);
-      console.log(this.password_value);
-      this.axios.get('/api')
-          .then(res => {
-            //true
+      console.log(this.signin);
+      console.log(JSON.stringify(this.signin));
+      this.axios.post('/api/common/signin', JSON.stringify(this.signin)
+      ).then(res => {//true
             console.log(res);
-          }, res => {
-            // 错误回调
+          }, res => {// 错误回调
             console.log("error");
             console.log(res);
           })
