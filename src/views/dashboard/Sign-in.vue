@@ -122,7 +122,9 @@ export default {
           this.show = true;
         }
         else{
-
+          /*TODO 此处为test*/
+          this.mess = res.data["mess"];
+          this.show = true;
         }
           }, res => {// 错误回调
             console.log("error");
