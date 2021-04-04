@@ -13,7 +13,7 @@
           <v-card elevation="12" class="py-8">
             <v-card-text class="text-center">
               <h2 class="text-h4 black--text font-weight-bold">
-                欢迎登陆物业管理系统
+                物业管理系统
               </h2>
               <div class="mt-6">
                 <v-row justify="center">
@@ -68,6 +68,26 @@
                       </v-btn
                       >
                     </div>
+
+                    <v-dialog  max-width="500px" v-model="show" >
+                    <v-card >
+                      <v-card-title class="headline">
+                        错误信息
+                      </v-card-title>
+                      <v-card-text>{{mess}}</v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            color="green darken-1"
+                            text
+                            @click="show = false"
+                        >
+                          了解
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                    </v-dialog>
+
                   </v-col>
                 </v-row>
               </div>
@@ -89,21 +109,26 @@ export default {
         passwd:"",
       },
       checkbox: true,
+      show:false,
+      mess:"",
     }
   },
   methods:{
     asd:function (){
-      console.log(this.signin);
-      console.log(JSON.stringify(this.signin));
       this.axios.post('/api/common/signin', JSON.stringify(this.signin)
       ).then(res => {//true
-            console.log(res);
+        if(res.data["flag"]=="error"){
+          this.mess = res.data["mess"];
+          this.show = true;
+        }
+        else{
+
+        }
           }, res => {// 错误回调
             console.log("error");
             console.log(res);
           })
-    }
+    },
   },
-
 }
 </script>
