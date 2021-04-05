@@ -7,17 +7,47 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    component: () => import("../views/dashboard/Sign-in"),
-/*    children: [
+    component: () => import("../views/Sign-in"),
+  },
+  {
+    path: "/user",
+    component: () => import("../views/UserPage/user"),
+    children: [
       {
-        path: "/",
-        name: "Home",
-        component: Home,
+        path: "/user",
+        name: "user-dashboard",
+        component: () =>
+            import("../views/UserPage/UserDashboard"),
       },
-    ],*/
+    ]
   },
 
   {
+    path: "/dashboard/pages",
+    component: () => import("../components/root/dashboard"),
+    children: [
+      {
+        path: "/dashboard/pages/",
+        name: "dashboard-pages-dashboards-dashboard",
+        component: () =>
+          import("../views/dashboard/pages/dashboards/Dashboard.vue"),
+      },
+      {
+        path: "/dashboard/pages/examples/profile",
+        name: "dashboard-pages-examples-profile",
+        component: () =>
+          import("../views/dashboard/pages/examples/Profile.vue"),
+      },
+      {
+        path: "/dashboard/pages/examples/sign-in",
+        name: "dashboard-pages-examples-sign-in",
+        component: () =>
+          import("../views/Sign-in"),
+      },
+    ],
+  },
+
+ /* {
     path: "/front/pages",
     component: () => import("../components/root/front"),
     children: [
@@ -47,32 +77,8 @@ const routes = [
         component: () => import("../views/front/pages/Contact.vue"),
       },
     ],
-  },
+  },*/
 
-  {
-    path: "/dashboard/pages",
-    component: () => import("../components/root/dashboard"),
-    children: [
-      {
-        path: "/dashboard/pages/dashboards/dashboard",
-        name: "dashboard-pages-dashboards-dashboard",
-        component: () =>
-          import("../views/dashboard/pages/dashboards/Dashboard.vue"),
-      },
-      {
-        path: "/dashboard/pages/examples/profile",
-        name: "dashboard-pages-examples-profile",
-        component: () =>
-          import("../views/dashboard/pages/examples/Profile.vue"),
-      },
-      {
-        path: "/dashboard/pages/examples/sign-in",
-        name: "dashboard-pages-examples-sign-in",
-        component: () =>
-          import("../views/dashboard/Sign-in.vue"),
-      },
-    ],
-  },
 ];
 
 const router = new VueRouter({
