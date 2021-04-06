@@ -8,8 +8,7 @@ const routes = [
   {
     path: "/",
     component: () => import("../views/Sign-in"),
-  },
-  {
+  }, {
     path: "/user",
     component: () => import("../views/UserPage/user"),
     children: [
@@ -18,11 +17,57 @@ const routes = [
         name: "user-dashboard",
         component: () =>
             import("../views/UserPage/UserDashboard"),
+      }, {
+        path: "/user/charge",
+        name: "user-charge",
+        component: () =>
+            import("../views/UserPage/charge"),
+      }, {
+        path: "/user/fix",
+        name: "user-fix",
+        component: () =>
+            import("../views/UserPage/fix"),
+      }, {
+        path: "/user/custmess",
+        name: "user-mess",
+        component: () =>
+            import("../views/UserPage/custmess"),
+      }, {
+        path: "/user/poster",
+        name: "user-poster",
+        component: () =>
+            import("../views/UserPage/poster"),
+      },
+    ]
+  },{
+    path: "/cust",
+    component: () => import("../views/CustPage/Cust"),
+    children: [
+      {
+        path: "/cust",
+        name: "cust-dashboard",
+        component: () =>
+            import("../views/CustPage/CustDashboard"),
+      }, {
+        path: "/cust/charge",
+        name: "cust-charge",
+        component: () =>
+            import("../views/CustPage/charge"),
+      }, {
+        path: "/cust/fix",
+        name: "cust-fix",
+        component: () =>
+            import("../views/CustPage/fix"),
+      },{
+        path: "/cust/poster",
+        name: "cust-poster",
+        component: () =>
+            import("../views/CustPage/poster"),
       },
     ]
   },
 
-  {
+/*  {
     path: "/dashboard/pages",
     component: () => import("../components/root/dashboard"),
     children: [
@@ -45,7 +90,7 @@ const routes = [
           import("../views/Sign-in"),
       },
     ],
-  },
+  },*/
 
  /* {
     path: "/front/pages",
