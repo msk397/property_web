@@ -38,6 +38,12 @@ const routes = [
         component: () =>
             import("../views/UserPage/poster"),
       },
+      {
+        path: "/user/mess",
+        name: "user-mess",
+        component: () =>
+            import("../views/UserPage/mess"),
+      },
     ]
   },{
     path: "/cust",
