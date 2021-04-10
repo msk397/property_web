@@ -265,16 +265,12 @@
       <router-view />
       <v-footer>
         {{ new Date().getFullYear() }}
-        <span class="ml-2">
-          <strong
-          ><a
+<a
               href="https://heroui.net"
               target="_blank"
               rel="noopener noreferrer"
           >HeroUI</a
-          ></strong
           >
-        </span>
       </v-footer>
     </v-main>
   </div>
@@ -362,6 +358,5 @@ export default {
       }
     },
   },
-
 };
 </script>
