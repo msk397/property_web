@@ -44,7 +44,9 @@
 
                     <v-text-field
                         label="Password"
-                        type="password"
+                        :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="show1 ? 'text' : 'password'"
+                        @click:append="show1 = !show1"
                         solo
                         flat
                         outlined
@@ -103,6 +105,7 @@
 export default {
   data () {
     return {
+      show1:false,
       signin:{
         choose:"",
         account:"",
