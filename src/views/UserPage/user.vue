@@ -263,15 +263,6 @@
 
     <v-main>
       <router-view />
-      <v-footer>
-        {{ new Date().getFullYear() }}
-<a
-              href="https://heroui.net"
-              target="_blank"
-              rel="noopener noreferrer"
-          >HeroUI</a
-          >
-      </v-footer>
     </v-main>
   </div>
 </template>

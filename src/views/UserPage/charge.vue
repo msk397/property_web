@@ -1,50 +1,360 @@
 <template>
-    <v-data-table
-        :headers="headers"
-        :items="desserts"
-        :sort-by.sync="sortBy"
-        :sort-desc.sync="sortDesc"
-        loading="loadin"
-        multi-sort
-        loading-text="Waiting"
-    ></v-data-table>
+  <v-data-table
+      :headers="headers"
+      :items="desserts"
+      :sort-by.sync="sortBy"
+      :sort-desc.sync="sortDesc"
+      loading="loadin"
+      multi-sort
+      :search="search"
+      loading-text="Waiting"
+  >
+<!--  颜色  -->
+    <template v-slot:item.charge_status="{item }">
+      <v-chip
+          :color="getColor(item.charge_status)"
+          dark
+      >
+        {{ item.charge_status}}
+      </v-chip>
+    </template>
+
+    <template v-slot:top>
+      <v-toolbar flat>
+        <v-toolbar-title>缴费详情</v-toolbar-title>
+        <v-divider
+            class="mx-4"
+            inset
+            vertical
+        ></v-divider>
+        <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+        ></v-text-field>
+        <v-spacer></v-spacer>
+        <v-dialog
+            v-model="dialog"
+            max-width="500px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+                color="primary"
+                dark
+                class="mb-2"
+                v-bind="attrs"
+                v-on="on"
+            >
+              添加缴费项目
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ formTitle }}</span>
+            </v-card-title>
+
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col
+                      cols="12"
+                      sm="6"
+                      md="4"
+                  >
+                    <v-select
+                        :items="custname"
+                        label="姓名"
+                        v-if="editedIndex == -1"
+                    ></v-select>
+                    <v-text-field
+                        v-model="editedItem.cust_name"
+                        label="姓名"
+                         v-if="editedIndex != -1"
+                        disabled
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                      cols="12"
+                      sm="6"
+                      md="4"
+                  >
+                    <v-text-field
+                        v-model="editedItem.charge_cost"
+                        label="金额"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                      cols="12"
+                      sm="6"
+                      md="4"
+                  >
+                    <v-menu
+                        ref="dialog_timer"
+                        v-model="modal"
+                        :close-on-content-click="false"
+                        :return-value.sync="editedItem.charge_ddl"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="auto"
+                    >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                          v-model="editedItem.charge_ddl"
+                          label="截止时间"
+                          prepend-icon="mdi-calendar"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                        v-model="editedItem.charge_ddl"
+                        no-title
+                        locale="zh-cn"
+                        scrollable
+                        :allowed-dates="allowedDates"
+                    >
+                      <v-spacer></v-spacer>
+                      <v-btn
+                          text
+                          color="primary"
+                          @click="modal = false"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                          text
+                          color="primary"
+                          @click="$refs.dialog_timer.save(editedItem.charge_ddl)"
+                      >
+                        OK
+                      </v-btn>
+                    </v-date-picker>
+                    </v-menu>
+                  </v-col>
+                  <v-col
+                      cols="12"
+                      sm="6"
+                      md="4"
+                  >
+                    <v-text-field
+                        v-model="editedItem.charge_memo"
+                        label="备注"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                      cols="12"
+                      sm="6"
+                      md="4"
+                  >
+                    <v-switch
+                        v-model="editedItem.status"
+                        label="是否已缴费"
+                    ></v-switch>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                  color="blue darken-1"
+                  text
+                  @click="close"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                  color="blue darken-1"
+                  text
+                  @click="save"
+              >
+                Save
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-card>
+            <v-card-title class="headline">Are you sure you want to delete this item?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-toolbar>
+    </template>
+<!-- 这里是action里面的图标   -->
+    <template v-slot:item.actions="{ item }">
+      <v-icon
+          small
+          class="mr-2"
+          @click="editItem(item)"
+      >
+        mdi-pencil
+      </v-icon>
+      <v-icon
+          small
+          @click="deleteItem(item)"
+      >
+        mdi-delete
+      </v-icon>
+    </template>
+
+    <template v-slot:no-data>
+      <v-btn
+          color="primary"
+          @click="initialize"
+      >
+        Reset
+      </v-btn>
+    </template>
+  </v-data-table>
 </template>
 
 <script>
 export default {
-  data (){
-    return {
-      loadin:true,
-      sortBy: 'time',
-      sortDesc: false,
-      headers: [
-        {
-          text: '业主姓名',
-          align: 'start',
-          value: 'cust_name',
-        },
-        { text: '缴费状态', value: 'charge_status' },
-        { text: '缴费单生成时间', value: 'charge_time' },
-        { text: '应缴金额（元）', value: 'charge_cost' },
-        { text: '截止日期', value: 'charge_ddl' },
-        { text: '备注', value: 'charge_memo' },
-      ],
-      desserts: [],
-    }
+  data: () => ({
+/*    nowDate:new Date().toLocaleDateString(),*/
+    modal: false,
+    search:"",
+    sortBy:"charge_ddl",
+    sortDesc:false,
+    dialog: false,
+    dialogDelete: false,
+    headers: [
+      {
+        text: '业主姓名',
+        align: 'start',
+        value: 'cust_name',
+      },
+      { text: '缴费状态', value: 'charge_status' },
+      { text: '缴费单生成时间', value: 'charge_time' },
+      { text: '应缴金额（元）', value: 'charge_cost'},
+      { text: '截止日期', value: 'charge_ddl' },
+      { text: '备注', value: 'charge_memo', sortable: false },
+      { text: 'Actions', value: 'actions', sortable: false },
+    ],
+    desserts: [],
+    custname: [],
+    editedIndex: -1,
+    editedItem: {
+      cust_name: '',
+      charge_status: '',
+      charge_cost: '',
+      charge_ddl: '',
+      charge_memo:"",
+      status:'',
+    },
+    defaultItem: {
+      cust_name: '',
+      charge_status:false,
+      charge_cost: '',
+      charge_ddl: '',
+      charge_memo:"",
+      status:'',
+    },
+  }),
+
+  computed: {
+    formTitle () {
+      return this.editedIndex === -1 ? '添加缴费项目' : '编辑缴费项目'
+    },
   },
-  mounted() {
-    this.queryCharge();
+
+  watch: {
+    dialog (val) {
+      val || this.close()
+    },
+    dialogDelete (val) {
+      val || this.closeDelete()
+    },
   },
-  methods:{
-    queryCharge:function (){
+
+  created () {
+    this.initialize()
+
+  },
+  methods: {
+    allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
+
+    getColor (calories) {
+      if (calories == "已缴费") return 'green'
+      else return 'red'
+    },
+
+    initialize () {
       this.axios.get('/api/userCharge/queryUserCharge')
           .then(res => {
             this.desserts=res.data;
             this.loadin=!this.loadin;
-            },res => {
+          },res => {
+            console.log(res);
+          })
+      this.axios.get('/api/userCharge/queryCustName')
+          .then(res => {
+            this.custname=res.data;
+          },res => {
             console.log(res);
           })
     },
+    editItem (item) {
+      this.editedIndex = this.desserts.indexOf(item)
+      this.editedItem = Object.assign({}, item)
+      this.dialog = true
+    },
+
+    deleteItem (item) {
+      this.editedIndex = this.desserts.indexOf(item)
+      this.editedItem = Object.assign({}, item)
+      this.dialogDelete = true
+    },
+
+    deleteItemConfirm () {
+      this.desserts.splice(this.editedIndex, 1)
+      this.closeDelete()
+    },
+
+    close () {
+      this.dialog = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+
+    closeDelete () {
+      this.dialogDelete = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+/*缴费信息保存*/
+    save () {
+      if (this.editedIndex > -1) {
+        /*修改*/
+        console.log(this.editedItem)
+        this.axios.post('/api/userCharge/changeCharge', JSON.stringify(this.editedItem),
+        ).then(res => {//true
+          console.log(res);
+        }, res => {// 错误回调
+          /*TODO 这里写啥？*/
+          console.log(res);
+        })
+        this.initialize()
+      } else {
+        /*增加*/
+        this.desserts.push(this.editedItem)
+      }
+      this.close()
+    },
   },
-};
+}
 </script>
