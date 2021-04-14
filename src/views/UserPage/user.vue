@@ -278,6 +278,7 @@ export default {
       mess:{real:"", phone:"", addr:"", passwd:"",login:this.$route.query.name},
       pass:{newPass:"",login:this.$route.query.name},
       drawer: [
+        {title: "首页", icon: "mdi-cash-100", to: "/user",},
         {title: "收费管理", icon: "mdi-cash-100", to: "/user/charge",},
         {title: "维护公告", icon: "mdi-login", to: "/user/poster",},
         {title: "报修管理", icon: "mdi-face-profile", to: "/user/fix",},
@@ -342,9 +343,6 @@ export default {
           this.oldPass="";
           this.confirmPass="";
           this.pass.newPass="";
-        }, res => {// 错误回调
-          /*TODO 这里写啥？*/
-          console.log(res);
         })
       }
     },

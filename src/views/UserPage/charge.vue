@@ -67,6 +67,7 @@
                         :items="custname"
                         label="姓名"
                         v-if="editedIndex == -1"
+                        v-model="editedItem.cust_name"
                     ></v-select>
                     <v-text-field
                         v-model="editedItem.cust_name"
@@ -179,7 +180,7 @@
         </v-dialog>
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
-            <v-card-title class="headline">Are you sure you want to delete this item?</v-card-title>
+            <v-card-title class="headline">确定要删除本条缴费记录吗?</v-card-title>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
@@ -250,7 +251,7 @@ export default {
       charge_cost: '',
       charge_ddl: '',
       charge_memo:"",
-      status:'',
+      status:false,
     },
     defaultItem: {
       cust_name: '',
@@ -258,7 +259,7 @@ export default {
       charge_cost: '',
       charge_ddl: '',
       charge_memo:"",
-      status:'',
+      status: false,
     },
   }),
 
@@ -318,6 +319,7 @@ export default {
 
     deleteItemConfirm () {
       this.desserts.splice(this.editedIndex, 1)
+      this.axios.post('/api/userCharge/DelCharge', JSON.stringify(this.editedItem))
       this.closeDelete()
     },
 
@@ -340,18 +342,13 @@ export default {
     save () {
       if (this.editedIndex > -1) {
         /*修改*/
-        console.log(this.editedItem)
-        this.axios.post('/api/userCharge/changeCharge', JSON.stringify(this.editedItem),
-        ).then(res => {//true
-          console.log(res);
-        }, res => {// 错误回调
-          /*TODO 这里写啥？*/
-          console.log(res);
-        })
+        this.axios.post('/api/userCharge/changeCharge', JSON.stringify(this.editedItem))
         this.initialize()
+
       } else {
         /*增加*/
-        this.desserts.push(this.editedItem)
+        this.axios.post('/api/userCharge/AddCharge', JSON.stringify(this.editedItem))
+        this.initialize()
       }
       this.close()
     },
