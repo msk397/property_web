@@ -273,10 +273,10 @@ export default {
     return{
       savemess:null, show:false, show2:false,read:true, dialog:false,
       oldPass:null,confirmPass:null,changePassMess:null,changepass:false,show3:false,show4:false,
-      name: this.$route.query.name,
+      name: window.sessionStorage.getItem('name'),
       drawerDisplay: null,
-      mess:{real:"", phone:"", addr:"", passwd:"",login:this.$route.query.name},
-      pass:{newPass:"",login:this.$route.query.name},
+      mess:{real:"", phone:"", addr:"", passwd:"",login:window.sessionStorage.getItem('name')},
+      pass:{newPass:"",login:window.sessionStorage.getItem('name')},
       drawer: [
         {title: "首页", icon: "mdi-cash-100", to: "/user",},
         {title: "收费管理", icon: "mdi-cash-100", to: "/user/charge",},
@@ -297,7 +297,7 @@ export default {
       this.$router.push({ path:'/',});
     },
     query:function (){
-      this.axios.post('/api/user/queryusermess', JSON.stringify({"name":this.name}),
+      this.axios.post('/api/user/queryusermess', JSON.stringify({"name":window.sessionStorage.getItem('loginname')}),
       ).then(res => {//true
         this.mess.real=res.data["real"];this.mess.phone=res.data["phone"];this.mess.addr=res.data["addr"];this.mess.passwd=res.data["passwd"];
       }, res => {// 错误回调

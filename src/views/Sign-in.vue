@@ -127,6 +127,8 @@ export default {
         else if(res.data["flag"]=="success"){
           if(res.data["mess"]=="admin")
           {
+            window.sessionStorage.setItem('loginname', this.signin.account);
+            window.sessionStorage.setItem('name', res.data["name"]);
             this.$router.push({ path:'/user/',
               query:{
                 name: res.data["name"],
@@ -134,6 +136,8 @@ export default {
           }
           else if(res.data["mess"]=="cust")
           {
+            window.sessionStorage.setItem('loginname', this.signin.account);
+            window.sessionStorage.setItem('name', res.data["realname"]);
             this.$router.push({ path:'/cust/',
               query:{
                 name: res.data["name"],

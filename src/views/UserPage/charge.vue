@@ -341,6 +341,7 @@ export default {
 /*缴费信息保存*/
     save () {
       if (this.editedIndex > -1) {
+        console.log(JSON.stringify(this.editedItem));
         /*修改*/
         this.axios.post('/api/userCharge/changeCharge', JSON.stringify(this.editedItem))
         this.initialize()
