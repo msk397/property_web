@@ -181,9 +181,9 @@
                   max-width="180">
           <v-card>
             <v-card-title class="headline">
-              确认新密码
+              确认密码
             </v-card-title>
-            <v-card-text>新密码为{{newPass}}</v-card-text>
+            <v-card-text>{{newPass}}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="reset = false">OK</v-btn>
@@ -247,26 +247,10 @@ export default {
     desserts: [],
     custname: [],
     editedIndex: -1,
-    editedItem: {
-      cust_addr:'',
-      cust_floor:'',
-      cust_unit:'',
-      cust_door:'',
-      cust_loginname:'',
-      cust_name:'',
-      cust_id:'',
-      cust_phone:'',
-    },
-    defaultItem: {
-      cust_addr:'',
-      cust_floor:'',
-      cust_unit:'',
-      cust_door:'',
-      cust_loginname:'',
-      cust_name:'',
-      cust_id:'',
-      cust_phone:'',
-    },
+    editedItem: {cust_addr:'', cust_floor:'', cust_unit:'', cust_door:'',
+      cust_loginname:'', cust_name:'', cust_id:'', cust_phone:'',},
+    defaultItem: {cust_addr:'', cust_floor:'1', cust_unit:'A', cust_door:'',
+      cust_loginname:'', cust_name:'', cust_id:'', cust_phone:'',},
   }),
 
   computed: {
@@ -295,6 +279,8 @@ export default {
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
 
     initialize () {
+      this.editedItem = Object.assign({}, this.defaultItem)
+      this.editedIndex = -1
       this.axios.get('/api/userCust/queryCust')
           .then(res => {
             console.log(res.data);

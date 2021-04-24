@@ -127,6 +127,12 @@ export default {
         else if(res.data["flag"]=="success"){
           if(res.data["mess"]=="admin")
           {
+            if(this.signin.account=='root'){
+              window.sessionStorage.setItem('identity','0');
+            }
+            else{
+              window.sessionStorage.setItem('identity','1');
+            }
             window.sessionStorage.setItem('loginname', this.signin.account);
             window.sessionStorage.setItem('name', res.data["name"]);
             this.$router.push({ path:'/user/',
@@ -136,6 +142,7 @@ export default {
           }
           else if(res.data["mess"]=="cust")
           {
+            window.sessionStorage.setItem('identity','2');
             window.sessionStorage.setItem('loginname', this.signin.account);
             window.sessionStorage.setItem('name', res.data["realname"]);
             this.$router.push({ path:'/cust/',

@@ -192,6 +192,7 @@ export default {
     dialogDelete: false,
     headers: [
       { text: '业主姓名', align: 'start', value: 'cust_name',},
+      { text: '地址', value: 'cust_addr' },
       { text: '维修详情', value: 'fix_log', sortable: false },
       { text: '维修状态', value: 'fix_status' },
       { text: '生成时间', value: 'fix_startime' },
@@ -251,6 +252,8 @@ export default {
     },
 
     initialize () {
+      this.editedItem = Object.assign({}, this.defaultItem)
+      this.editedIndex = -1
       this.axios.get('/api/userFix/queryUserFix')
           .then(res => {
             this.desserts=res.data;

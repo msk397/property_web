@@ -50,7 +50,7 @@
               添加缴费项目
             </v-btn>
           </template>
-          <v-card>
+          <v-card ref="form">
             <v-card-title>
               <span class="headline">{{ formTitle }}</span>
             </v-card-title>
@@ -144,6 +144,7 @@
                         v-model="editedItem.charge_memo"
                         label="备注"
                     ></v-text-field>
+                    <div class="error" v-if="!$v.editedItem.charge_memo.required">Field is required</div>
                   </v-col>
                   <v-col
                       cols="12"
@@ -220,8 +221,10 @@
 </template>
 
 <script>
+import { required, minLength } from 'vuelidate/lib/validators'
 export default {
   data: () => ({
+
 /*    nowDate:new Date().toLocaleDateString(),*/
     modal: false,
     search:"",
@@ -235,6 +238,7 @@ export default {
         align: 'start',
         value: 'cust_name',
       },
+      { text: '地址', value: 'cust_addr' },
       { text: '缴费状态', value: 'charge_status' },
       { text: '缴费单生成时间', value: 'charge_time' },
       { text: '应缴金额（元）', value: 'charge_cost'},
@@ -245,22 +249,18 @@ export default {
     desserts: [],
     custname: [],
     editedIndex: -1,
-    editedItem: {
-      cust_name: '',
-      charge_status: '',
-      charge_cost: '',
-      charge_ddl: '',
-      charge_memo:"",
-      status:false,
-    },
-    defaultItem: {
-      cust_name: '',
-      charge_status:false,
-      charge_cost: '',
-      charge_ddl: '',
-      charge_memo:"",
-      status: false,
-    },
+    editedItem: {cust_name: '', charge_status: '', charge_cost: '', charge_ddl: '', charge_memo:"", status:false,},
+    defaultItem: {cust_name: '', charge_status:false, charge_cost: '1', charge_ddl: new Date().toJSON().substring(0, 10),
+      charge_memo:"", status: false,},
+    memo:'',
+    validations: {
+      editedItem:{
+        charge_memo: {
+          required,
+          minLength: minLength(4)
+        },
+      }
+    }
   }),
 
   computed: {
@@ -291,6 +291,8 @@ export default {
     },
 
     initialize () {
+      this.editedItem = Object.assign({}, this.defaultItem)
+      this.editedIndex = -1
       this.axios.get('/api/userCharge/queryUserCharge')
           .then(res => {
             this.desserts=res.data;

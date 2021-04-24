@@ -300,8 +300,8 @@ export default {
       poster_id:'',
       admin_name:'',
       poster_log:'',
-      poster_date:'',
-      poster_time:'',
+      poster_date:new Date().toJSON().substring(0, 10),
+      poster_time:new Date().toTimeString().substring(0,5),
       poster_title:'',
     },
   }),
@@ -341,6 +341,8 @@ export default {
           },res => {
             console.log(res);
           })
+      this.editedItem = Object.assign({}, this.defaultItem)
+      this.editedIndex = -1
     },
     editItem (item) {
       this.editedIndex = this.desserts.indexOf(item)
