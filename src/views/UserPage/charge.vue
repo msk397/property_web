@@ -68,6 +68,10 @@
                         label="姓名"
                         v-if="editedIndex == -1"
                         v-model="editedItem.cust_name"
+                        required
+                        :error-messages="nameErrors"
+                        @input="$v.editedItem.cust_name.$touch()"
+                        @blur="$v.editedItem.cust_name.$touch()"
                     ></v-select>
                     <v-text-field
                         v-model="editedItem.cust_name"
@@ -76,21 +80,19 @@
                         disabled
                     ></v-text-field>
                   </v-col>
-                  <v-col
-                      cols="12"
-                      sm="6"
-                      md="4"
-                  >
+                  <v-col cols="12" sm="6" md="4">
                     <v-text-field
                         v-model="editedItem.charge_cost"
-                        label="金额"
+                        label="金额（元）"
+                        required
+                        :error-messages="costErrors"
+                        @input="$v.editedItem.charge_cost.$touch()"
+                        @blur="$v.editedItem.charge_cost.$touch()"
+                        type="number"
+                        step="0.1"
                     ></v-text-field>
                   </v-col>
-                  <v-col
-                      cols="12"
-                      sm="6"
-                      md="4"
-                  >
+                  <v-col cols="12" sm="6" md="4">
                     <v-menu
                         ref="dialog_timer"
                         v-model="modal"
@@ -135,22 +137,15 @@
                     </v-date-picker>
                     </v-menu>
                   </v-col>
-                  <v-col
-                      cols="12"
-                      sm="6"
-                      md="4"
-                  >
-                    <v-text-field
+                  <v-col cols="12" sm="6" md="4">
+                    <v-select
+                        :items="memo"
+                        label="类型"
                         v-model="editedItem.charge_memo"
-                        label="备注"
-                    ></v-text-field>
-                    <div class="error" v-if="!$v.editedItem.charge_memo.required">Field is required</div>
+                    ></v-select>
                   </v-col>
-                  <v-col
-                      cols="12"
-                      sm="6"
-                      md="4"
-                  >
+                  <v-spacer></v-spacer>
+                  <v-col cols="12" sm="6" md="4">
                     <v-switch
                         v-model="editedItem.status"
                         label="是否已缴费"
@@ -179,9 +174,10 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <v-dialog v-model="dialogDelete" max-width="500px">
+        <v-dialog v-model="dialogDelete" max-width="200px"  overlay-opacity="0">
           <v-card>
-            <v-card-title class="headline">确定要删除本条缴费记录吗?</v-card-title>
+            <v-card-title class="headline">警告</v-card-title>
+            <v-card-text>确定要删除本条缴费记录吗?</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
@@ -221,51 +217,49 @@
 </template>
 
 <script>
-import { required, minLength } from 'vuelidate/lib/validators'
+import { validationMixin } from 'vuelidate'
+import { required,decimal,minValue } from 'vuelidate/lib/validators'
 export default {
+  mixins: [validationMixin],
+  validations: {
+    editedItem:{
+      charge_cost:{required, decimal,minValue:minValue(0.01)},
+      cust_name:{required},
+    }
+  },
   data: () => ({
-
-/*    nowDate:new Date().toLocaleDateString(),*/
-    modal: false,
-    search:"",
-    sortBy:"charge_ddl",
-    sortDesc:false,
-    dialog: false,
-    dialogDelete: false,
+    modal: false, search:"", sortBy:"charge_ddl", sortDesc:false, dialog: false, dialogDelete: false,
     headers: [
-      {
-        text: '业主姓名',
-        align: 'start',
-        value: 'cust_name',
-      },
+      {text: '业主姓名', align: 'start', value: 'cust_name',},
       { text: '地址', value: 'cust_addr' },
       { text: '缴费状态', value: 'charge_status' },
       { text: '缴费单生成时间', value: 'charge_time' },
       { text: '应缴金额（元）', value: 'charge_cost'},
       { text: '截止日期', value: 'charge_ddl' },
-      { text: '备注', value: 'charge_memo', sortable: false },
+      { text: '类型', value: 'charge_memo'},
       { text: 'Actions', value: 'actions', sortable: false },
     ],
-    desserts: [],
-    custname: [],
-    editedIndex: -1,
+    desserts: [], custname: [], memo:['电费','水费','燃气费','暖气费'], editedIndex: -1,
     editedItem: {cust_name: '', charge_status: '', charge_cost: '', charge_ddl: '', charge_memo:"", status:false,},
-    defaultItem: {cust_name: '', charge_status:false, charge_cost: '1', charge_ddl: new Date().toJSON().substring(0, 10),
-      charge_memo:"", status: false,},
-    memo:'',
-    validations: {
-      editedItem:{
-        charge_memo: {
-          required,
-          minLength: minLength(4)
-        },
-      }
-    }
+    defaultItem: {cust_name:'', charge_status:false, charge_cost: '', charge_ddl: new Date().toJSON().substring(0, 10),
+      charge_memo:'电费', status: false,},
   }),
 
   computed: {
-    formTitle () {
-      return this.editedIndex === -1 ? '添加缴费项目' : '编辑缴费项目'
+    formTitle () {return this.editedIndex === -1 ? '添加缴费项目' : '编辑缴费项目'},
+    costErrors () {
+      const errors = []
+      if (!this.$v.editedItem.charge_cost.$dirty) return errors
+      !this.$v.editedItem.charge_cost.minValue && errors.push('不可小于0.01元')
+      !this.$v.editedItem.charge_cost.decimal && errors.push('金额只能为数字')
+      !this.$v.editedItem.charge_cost.required && errors.push('金额不可为空')
+      return errors
+    },
+    nameErrors () {
+      const errors = []
+      if (!this.$v.editedItem.cust_name.$dirty) return errors
+      !this.$v.editedItem.cust_name.required && errors.push('请选择业主姓名')
+      return errors
     },
   },
 
@@ -280,7 +274,6 @@ export default {
 
   created () {
     this.initialize()
-
   },
   methods: {
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
@@ -331,6 +324,7 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
+      this.$v.$reset()
     },
 
     closeDelete () {
@@ -342,17 +336,21 @@ export default {
     },
 /*缴费信息保存*/
     save () {
-      if (this.editedIndex > -1) {
-        /*修改*/
-        this.axios.post('/api/userCharge/changeCharge', JSON.stringify(this.editedItem))
-        this.initialize()
-
-      } else {
-        /*增加*/
-        this.axios.post('/api/userCharge/AddCharge', JSON.stringify(this.editedItem))
-        this.initialize()
+      if(this.$v.$invalid||this.$v.$error){
+        this.$v.$touch()
       }
-      this.close()
+      else{
+        if (this.editedIndex > -1) {
+          /*修改*/
+          this.axios.post('/api/userCharge/changeCharge', JSON.stringify(this.editedItem))
+        } else {
+          /*增加*/
+          this.axios.post('/api/userCharge/AddCharge', JSON.stringify(this.editedItem))
+        }
+        this.initialize()
+        this.close()
+        this.$v.$reset()
+      }
     },
   },
 }

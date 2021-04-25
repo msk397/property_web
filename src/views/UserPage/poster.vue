@@ -77,14 +77,16 @@
                         disabled
                     ></v-text-field>
                   </v-col>
-                  <v-col
-                      cols="12"
-                      sm="6"
-                      md="6"
-                  >
+                  <v-spacer></v-spacer>
+                  <v-col cols="12" sm="6" md="6">
                     <v-text-field
                         v-model="editedItem.poster_title"
                         label="标题"
+                        :counter="20"
+                        required
+                        :error-messages="titleErrors"
+                        @input="$v.editedItem.poster_title.$touch()"
+                        @blur="$v.editedItem.poster_title.$touch()"
                     ></v-text-field>
                   </v-col>
                   <v-row>
@@ -137,7 +139,8 @@
                       </v-date-picker>
                     </v-menu>
                   </v-col>
-                  <v-col
+                  <v-spacer></v-spacer>
+                    <v-col
                       cols="12"
                       sm="6"
                       md="4"
@@ -198,6 +201,11 @@
                         outlined
                         v-model="editedItem.poster_log"
                         label="公告详情"
+                        counter="200"
+                        required
+                        :error-messages="logErrors"
+                        @input="$v.editedItem.poster_log.$touch()"
+                        @blur="$v.editedItem.poster_log.$touch()"
                     ></v-textarea>
                   </v-col>
                 </v-row>
@@ -223,14 +231,14 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <v-dialog v-model="dialogDelete" max-width="500px">
+        <v-dialog v-model="dialogDelete" max-width="200px"  overlay-opacity="0">
           <v-card>
-            <v-card-title class="headline">确定要删除该公告吗?</v-card-title>
+            <v-card-title class="headline">警告</v-card-title>
+            <v-card-text>确定要删除该公告吗?</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
               <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
-              <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -265,66 +273,35 @@
 </template>
 
 <script>
+import { validationMixin } from 'vuelidate'
+import { required, maxLength } from 'vuelidate/lib/validators'
 export default {
-  data: () => ({
-    /*    nowDate:new Date().toLocaleDateString(),*/
-    timeChoose:false,
-    modal: false,
-    name: window.sessionStorage.getItem('name'),
-    search:"",
-    sortBy:"poster_date",
-    sortDesc:false,
-    dialog: false,
-    dialogDelete: false,
-    headers: [
-      {text: '标题', align: 'start', value: 'poster_title',sortable: false},
-      { text: '发布日期', value: 'poster_date' },
-      { text: '发布时间', value: 'poster_time' },
-      { text: '公告详情', value: 'poster_log',sortable: false},
-      { text: '是否已发布', value: 'status'},
-      { text: '发布人', value: 'admin_name'},
-      { text: 'Actions', value: 'actions', sortable: false },
-    ],
-    desserts: [],
-    custname: [],
-    editedIndex: -1,
-    editedItem: {
-      poster_id:'',
-      admin_name:'',
-      poster_log:'',
-      poster_date:'',
-      poster_time:'',
-      poster_title:'',
-    },
-    defaultItem: {
-      poster_id:'',
-      admin_name:'',
-      poster_log:'',
-      poster_date:new Date().toJSON().substring(0, 10),
-      poster_time:new Date().toTimeString().substring(0,5),
-      poster_title:'',
-    },
-  }),
+  mixins: [validationMixin],
+  validations: {
+    editedItem:{
+      poster_title:{required, maxLength: maxLength(20)},
+      poster_log:{required,maxLength:maxLength(200)},
+    }
+  },
 
   computed: {
-    formTitle () {
-      return this.editedIndex === -1 ? '添加通知' : '编辑通知'
+    formTitle () {return this.editedIndex === -1 ? '添加通知' : '编辑通知'},
+    titleErrors () {
+      const errors = []
+      if (!this.$v.editedItem.poster_title.$dirty) return errors
+      !this.$v.editedItem.poster_title.maxLength && errors.push('标题不可超过20个字符')
+      !this.$v.editedItem.poster_title.required && errors.push('标题不可为空')
+      return errors
+    },
+    logErrors () {
+      const errors = []
+      if (!this.$v.editedItem.poster_log.$dirty) return errors
+      !this.$v.editedItem.poster_log.maxLength && errors.push('正文不可超过200个字符')
+      !this.$v.editedItem.poster_log.required && errors.push('正文不可为空')
+      return errors
     },
   },
 
-  watch: {
-    dialog (val) {
-      val || this.close()
-    },
-    dialogDelete (val) {
-      val || this.closeDelete()
-    },
-  },
-
-  created () {
-    this.initialize()
-
-  },
   methods: {
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
 
@@ -369,6 +346,7 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
+      this.$v.$reset()
     },
 
     closeDelete () {
@@ -380,20 +358,54 @@ export default {
     },
     /*缴费信息保存*/
     save () {
-      if (this.editedIndex > -1) {
-        /*修改*/
-        this.axios.post('/api/userPoster/changePoster', JSON.stringify(this.editedItem))
-        this.initialize()
-
-      } else {
-        /*增加*/
-        const  mess = this.editedItem
-        mess.admin_name = this.name
-        this.axios.post('/api/userPoster/AddPoster', JSON.stringify(mess))
-        this.initialize()
+      if(this.$v.$invalid||this.$v.$error){
+        this.$v.$touch()
       }
-      this.close()
+      else{
+        if (this.editedIndex > -1) {
+          /*修改*/
+          this.axios.post('/api/userPoster/changePoster', JSON.stringify(this.editedItem))
+        } else {
+          /*增加*/
+            const  mess = this.editedItem
+            mess.admin_name = this.name
+            this.axios.post('/api/userPoster/AddPoster', JSON.stringify(mess))
+
+        }
+        this.initialize()
+        this.close()
+        this.$v.$reset()
+      }
     },
   },
+
+  data: () => ({
+    /*    nowDate:new Date().toLocaleDateString(),*/
+    timeChoose:false,
+    modal: false,
+    name: window.sessionStorage.getItem('name'),
+    search:"",
+    sortBy:"poster_date",
+    sortDesc:false,
+    dialog: false,
+    dialogDelete: false,
+    headers: [
+      {text: '标题', align: 'start', value: 'poster_title',sortable: false},
+      { text: '发布日期', value: 'poster_date' },
+      { text: '发布时间', value: 'poster_time' },
+      { text: '公告详情', value: 'poster_log',sortable: false},
+      { text: '是否已发布', value: 'status'},
+      { text: '发布人', value: 'admin_name'},
+      { text: 'Actions', value: 'actions', sortable: false },
+    ],
+    desserts: [], custname: [], editedIndex: -1,
+    editedItem: {poster_id:'', admin_name:'', poster_log:'', poster_date:'', poster_time:'', poster_title:'',},
+    defaultItem: {poster_id:'', admin_name:'', poster_log:'', poster_date:new Date().toJSON().substring(0, 10),
+      poster_time:new Date().toTimeString().substring(0,5), poster_title:'',},
+  }),
+  watch: {
+    dialog (val) {val || this.close()},
+    dialogDelete (val) {val || this.closeDelete()},
+  },created () {this.initialize()},
 }
 </script>

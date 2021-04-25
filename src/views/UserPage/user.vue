@@ -42,40 +42,17 @@
           @click="drawerDisplay = !drawerDisplay"
       />
 
-      <v-toolbar-items class="d-flex align-center">
-        <v-text-field
-            hide-details
-            flat
-            dense
-            outlined
-            solo
-            label="Search"
-            prepend-inner-icon="mdi-magnify"
-        />
-      </v-toolbar-items>
-
       <v-spacer />
 
       <v-btn icon>
-        <v-icon>
-          mdi-bell-outline
-        </v-icon>
+        <v-icon>mdi-bell-outline</v-icon>
       </v-btn>
-      <v-btn icon>
-        <v-icon>
-          mdi-apps-box
-        </v-icon>
+      <v-btn icon><v-icon>mdi-apps-box</v-icon>
       </v-btn>
 
-      <v-menu
-          transition="slide-y-transition"
-          bottom
-          offset-y
-      >
+      <v-menu transition="slide-y-transition" bottom offset-y>
         <template v-slot:activator="{on}">
-      <v-btn text
-             v-on="on"
-      >
+      <v-btn text v-on="on">
         <div class="d-flex align-center">
           <v-icon  size="32">
             mdi-account-circle
@@ -119,7 +96,7 @@
                       :disabled="read"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12">
+                  <v-col cols="12" sm="4" md="4">
                     <v-text-field
                         label="住址*"
                         v-model="mess.addr"
@@ -127,12 +104,16 @@
                         :disabled="read"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12">
+                  <v-col cols="12" sm="6" md="4">
                     <v-text-field
                         label="手机号码*"
                         v-model="mess.phone"
                         required
                         :disabled="read"
+                        counter="11"
+                        :error-messages="phoneErrors"
+                        @input="$v.mess.phone.$touch()"
+                        @blur="$v.mess.phone.$touch()"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -141,20 +122,8 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="edit"
-              >
-                {{ read? "修 改":"保 存" }}
-              </v-btn>
-              <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="dialog = false"
-              >
-                关 闭
-              </v-btn>
+              <v-btn color="blue darken-1" text @click="edit">{{ read? "修 改":"保 存" }}</v-btn>
+              <v-btn color="blue darken-1" text @click="dialog = false ;read=true">关 闭</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -168,13 +137,7 @@
           <v-card-text>{{this.savemess}}</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-                color="green darken-1"
-                text
-                @click="show = false"
-            >
-              了解
-            </v-btn>
+            <v-btn color="green darken-1" text @click="show = false">了 解</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -197,7 +160,7 @@
                       @click:append="show3 = !show3"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" sm="6" md="4">
                   <v-text-field
                       :append-icon="show4 ? 'mdi-eye' : 'mdi-eye-off'"
                       :type="show4 ? 'text' : 'password'"
@@ -207,7 +170,7 @@
                       @click:append="show4 = !show4"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" sm="6" md="4">
                   <v-text-field
                       :append-icon="show4 ? 'mdi-eye' : 'mdi-eye-off'"
                       :type="show4 ? 'text' : 'password'"
@@ -223,18 +186,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-                color="blue darken-1"
-                text
-                @click="change_Pass"
-            >保 存
-            </v-btn>
-            <v-btn
-                color="blue darken-1"
-                text
-                @click="changepass = false"
-            >关 闭
-            </v-btn>
+            <v-btn color="blue darken-1" text @click="change_Pass">保 存</v-btn>
+            <v-btn color="blue darken-1" text @click="changepass = false">关 闭</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -251,7 +204,7 @@
             <v-btn
                 color="green darken-1"
                 text
-                @click="show2 = false ,  changepass = changePassMess=='修改成功'? false : true"
+                @click="show2 = false , changepass = changePassMess=='修改成功'? false : true"
             >
               了解
             </v-btn>
@@ -268,6 +221,8 @@
 </template>
 
 <script>
+import { validationMixin } from 'vuelidate'
+import { required,maxLength,minLength,numeric} from 'vuelidate/lib/validators'
 export default {
   data (){
     return{
@@ -275,18 +230,36 @@ export default {
       oldPass:null,confirmPass:null,changePassMess:null,changepass:false,show3:false,show4:false,
       name: window.sessionStorage.getItem('name'),
       drawerDisplay: null,
-      mess:{real:"", phone:"", addr:"", passwd:"",login:window.sessionStorage.getItem('name')},
+      mess:{real:"", phone:"", addr:"", passwd:"",login:window.sessionStorage.getItem('loginname')},
       pass:{newPass:"",login:window.sessionStorage.getItem('name')},
       drawer: [
-        {title: "首页", icon: "mdi-cash-100", to: "/user",},
+        {title: "首页", icon: "mdi-home", to: "/user",},
+        {title: "业主信息", icon: "mdi-home", to: "/user/custmess",},
         {title: "收费管理", icon: "mdi-cash-100", to: "/user/charge",},
-        {title: "维护公告", icon: "mdi-login", to: "/user/poster",},
         {title: "报修管理", icon: "mdi-face-profile", to: "/user/fix",},
-        {title: "维护业主信息", icon: "mdi-home", to: "/user/custmess",},
+        {title: "公告管理", icon: "mdi-login", to: "/user/poster",},
       ],
     }
   },
 
+  mixins: [validationMixin],
+  validations: {
+    mess: {
+      phone:{required,minLength:minLength(11),maxLength:maxLength(11),numeric},
+    },
+  },
+
+  computed: {
+    phoneErrors() {
+      const errors = []
+      if (!this.$v.mess.phone.$dirty) return errors
+      !this.$v.mess.phone.maxLength && errors.push('请输入11位格式手机号')
+      !this.$v.mess.phone.minLength && errors.push('请输入11位格式手机号')
+      !this.$v.mess.phone.numeric && errors.push('手机号仅支持数字输入')
+      !this.$v.mess.phone.required && errors.push('手机号不可为空')
+      return errors
+    }
+    },
   mounted() {
     this.drawerDisplay = this.$vuetify.breakpoint.lgAndDown ? false : true;
     this.query();
@@ -306,18 +279,26 @@ export default {
       })
     },
     edit:function (){
-      this.read = !this.read;
-      if(this.read){
-        this.axios.post('/api/user/saveusermess', JSON.stringify(this.mess),
-        ).then(res => {//true
-          this.savemess = res.data["mess"];
-          this.show=true;
-          this.query();
-        }, res => {// 错误回调
-          /*TODO 这里写啥？*/
-          console.log(res);
-        })
-      }
+      /*处于只读状态*/
+        if (this.read) {
+          this.read = !this.read;
+      }/*处于修改状态*/
+        else{
+          if(this.$v.$invalid||this.$v.$error){
+            this.$v.$touch()
+          }
+          else {
+            this.axios.post('/api/user/saveusermess', JSON.stringify(this.mess)).then(res => {//true
+              this.savemess = res.data["mess"];
+              this.show = true;
+              this.query();
+            }, res => {// 错误回调
+              /*TODO 这里写啥？*/
+              console.log(res);
+            })
+            this.read = !this.read;
+          }
+        }
     },
     change_Pass:function (){
       if(this.oldPass != this.mess.passwd){
