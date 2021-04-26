@@ -92,6 +92,7 @@
                     ></v-textarea>
                   </v-col>
                 </v-row>
+                <small>带*为必填项</small>
               </v-container>
             </v-card-text>
 

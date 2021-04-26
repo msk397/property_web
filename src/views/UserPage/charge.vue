@@ -83,7 +83,7 @@
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
                         v-model="editedItem.charge_cost"
-                        label="金额（元）"
+                        label="金额（元）*"
                         required
                         :error-messages="costErrors"
                         @input="$v.editedItem.charge_cost.$touch()"
@@ -152,6 +152,7 @@
                     ></v-switch>
                   </v-col>
                 </v-row>
+                <small>带*为必填项</small>
               </v-container>
             </v-card-text>
 
@@ -239,7 +240,7 @@ export default {
       { text: '类型', value: 'charge_memo'},
       { text: 'Actions', value: 'actions', sortable: false },
     ],
-    desserts: [], custname: [], memo:['电费','水费','燃气费','暖气费'], editedIndex: -1,
+    desserts: [], custname: [], memo:['电费','水费','燃气费','暖气费','物业费','其他费用'], editedIndex: -1,
     editedItem: {cust_name: '', charge_status: '', charge_cost: '', charge_ddl: '', charge_memo:"", status:false,},
     defaultItem: {cust_name:'', charge_status:false, charge_cost: '', charge_ddl: new Date().toJSON().substring(0, 10),
       charge_memo:'电费', status: false,},

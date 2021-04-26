@@ -2,7 +2,7 @@
   <div class="px-4">
     <v-sheet color="transparent">
       <v-row>
-        <v-col cols="12" md="6" lg="3" v-for="(item, i) in stats" :key="i">
+        <v-col cols="12" md="6" lg="4" v-for="(item, i) in stats" :key="i">
           <v-card class="py-6 px-10" outlined>
             <div>
               <div class="d-flex justify-space-between align-center">
@@ -16,15 +16,22 @@
                 </div>
 
                 <div>
-                  <v-icon :color="item.color" x-large>{{ item.icon }}</v-icon>
+                  <v-icon :color="item.color"  x-large v-if="i==0">{{ item.icon }}</v-icon>
+                  <v-progress-circular
+                      v-if="i==1||i==2"
+                      :rotate="270"
+                      :size="50"
+                      :value="item.number"
+                      :color="item.color"
+                  >
+                  </v-progress-circular>
                 </div>
               </div>
 
               <div class="subtitle-2 d-flex align-center mt-5">
-                <v-icon small color="success">mdi-arrow-up </v-icon>
                 <div>
+                  <v-spacer></v-spacer>
                   <span class="success--text">{{ item.number }}</span>
-
                   <span class="ml-2 text--secondary">
                     {{ item.desc }}
                   </span>
@@ -40,30 +47,68 @@
           <v-card class="pa-10" outlined>
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="subtitle-2">
-                  OVERVIEW
-                </div>
-
                 <div class="text-h6">
-                  Sales value
+                  待处理缴费信息
                 </div>
               </div>
 
               <div>
-                <v-btn color="primary" small>Month</v-btn>
+                <v-btn color="primary" small>处 理</v-btn>
               </div>
             </div>
 
-            <apexchart
-              v-if="chart"
-              width="100%"
-              height="500"
-              class="mt-4"
-              type="line"
-              :options="optionsLine"
-              :series="series"
-              id="vuechart-line"
-            ></apexchart>
+            <v-simple-table class="mt-4" height="450">
+              <template v-slot:default>
+                <thead class="primary ">
+                <tr>
+                  <th class="text-left white--text">业主姓名</th>
+                  <th class="text-left white--text">金 额</th>
+                  <th class="text-left white--text">类 型</th>
+                  <th class="text-left white--text">截止日期</th>
+                  <th class="text-left white--text">通 知</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in desserts" :key="item.name">
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.charge_cost }}</td>
+                  <td>{{ item.charge_memo }}</td>
+                  <td>{{ item.charge_ddl }}</td>
+                  <td><v-btn color="error">提 醒</v-btn></td>
+                </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-card>
+          <v-col></v-col>
+          <v-card outlined class="pa-10">
+            <div class="d-flex align-center justify-space-between">
+              <div class="text-h6">
+                待处理维修记录
+              </div>
+
+            </div>
+
+            <v-simple-table class="mt-4" height="450">
+              <template v-slot:default>
+                <thead class="primary ">
+                <tr>
+                  <th class="white--text">姓 名</th>
+                  <th class="white--text">地 址</th>
+                  <th class="white--text">详 情</th>
+                  <th class="white--text">通 知</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in fix" :key="item.name">
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.addr }}</td>
+                  <td>{{ item.fix_log }}</td>
+                  <td><v-btn color="green">处 理</v-btn></td>
+                </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
           </v-card>
         </v-col>
 
@@ -82,7 +127,7 @@
             <apexchart
               v-if="chart"
               width="100%"
-              height="500"
+              height="900"
               class="mt-4"
               type="bar"
               :options="optionsBar"
@@ -91,137 +136,37 @@
           </v-card>
         </v-col>
       </v-row>
-
-      <v-row>
-        <v-col cols="12" lg="6" xl="7">
-          <v-card outlined class="pa-10">
-            <div class="d-flex align-center justify-space-between">
-              <div class="text-h6">
-                Page visits
-              </div>
-
-              <v-btn small color="primary">See All</v-btn>
-            </div>
-
-            <v-simple-table class="mt-4">
-              <template v-slot:default>
-                <thead class="primary ">
-                  <tr>
-                    <th class="text-left white--text">
-                      PAGE NAME
-                    </th>
-                    <th class="text-left white--text">
-                      VISITORS
-                    </th>
-                    <th class="text-left white--text">
-                      UNIQUE USERS
-                    </th>
-                    <th class="text-left white--text">
-                      BOUNCE RATE
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in desserts" :key="item.name">
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.visitors }}</td>
-                    <td>{{ item.users }}</td>
-                    <td>
-                      <v-icon left small :color="item.color">
-                        {{ item.icon }}
-                      </v-icon>
-                      {{ item.rate }}
-                    </td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" lg="6" xl="5">
-          <v-card outlined class="pa-10">
-            <div class="d-flex align-center justify-space-between">
-              <div class="text-h6">
-                Social traffic
-              </div>
-
-              <v-btn small color="primary">See All</v-btn>
-            </div>
-
-            <v-simple-table class="mt-4">
-              <template v-slot:default>
-                <thead>
-                  <tr>
-                    <th class="text-left">
-                      REFERRAL
-                    </th>
-                    <th class="text-left">
-                      VISITORS
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in traffics" :key="item.name">
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.visitors }}</td>
-                    <td class="d-flex align-center">
-                      <div class="mr-2">
-                        {{ item.rate }}
-                      </div>
-
-                      <v-progress-linear
-                        :color="item.color"
-                        v-model="item.rate"
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
-          </v-card>
-        </v-col>
-      </v-row>
     </v-sheet>
   </div>
 </template>
 
 <script>
+import { mdiAccountGroup } from '@mdi/js'
 export default {
   data: () => ({
     chart: false,
     stats: [
       {
-        label: "TOTAL TRAFFIC",
+        label: "当前业主数",
         title: "350,897",
-        number: "6.68%",
-        desc: "Since last month",
-        icon: "mdi-star",
+        number: "",
+        desc: "",
+        icon: mdiAccountGroup,
         color: "error",
       },
       {
-        label: "NEW USERS",
-        title: "4,456",
-        number: "6.68%",
-        desc: "Since last month",
-        icon: "mdi-chart-arc",
+        label: "今日应收钱款",
+        title: "",
+        number: "",
+        desc: "",
         color: "warning",
       },
       {
-        label: "SALES",
-        title: "645",
-        number: "6.68%",
-        desc: "Since last month",
-        icon: "mdi-baby-carriage",
+        label: "维修率",
+        title: "",
+        number: "",
+        desc: "",
         color: "accent",
-      },
-      {
-        label: "PERFORMANCE",
-        title: "71.45%",
-        number: "6.68%",
-        desc: "Since last month",
-        icon: "mdi-fan-chevron-up",
-        color: "primary",
       },
     ],
     optionsLine: {
@@ -269,40 +214,7 @@ export default {
         data: [30, 40, 45, 50, 49, 60, 70, 91],
       },
     ],
-    desserts: [
-      {
-        name: "/dashboard/",
-        visitors: "4,660",
-        users: "440",
-        rate: "40%",
-        icon: "mdi-arrow-up",
-        color: "success",
-      },
-      {
-        name: "/dashboard/sign-up",
-        visitors: "3,260",
-        users: "120",
-        rate: "21%",
-        icon: "mdi-arrow-down",
-        color: "error",
-      },
-      {
-        name: "/dashboard/map",
-        visitors: "5,745",
-        users: "321",
-        rate: "63%",
-        icon: "mdi-arrow-up",
-        color: "success",
-      },
-      {
-        name: "/dashboard/table",
-        visitors: "1,564",
-        users: "56",
-        rate: "65%",
-        icon: "mdi-arrow-down",
-        color: "error",
-      },
-    ],
+    desserts: [],fix:[],
     traffics: [
       {
         name: "Facebook",
@@ -332,6 +244,45 @@ export default {
   }),
   mounted() {
     this.chart = true;
+  },
+  created () {
+    this.initialize()
+  },
+  methods: {
+    initialize() {
+      this.axios.get('/api/user/custnum')
+          .then(res => {
+            this.stats[0]['title']=res.data
+          }, res => {
+            console.log(res);
+          })
+      this.axios.get('/api/user/todaymoney')
+          .then(res => {
+            this.stats[1]['title']=res.data['fail']
+            this.stats[1]['number']=res.data['succ']
+          }, res => {
+            console.log(res);
+          })
+      this.axios.get('/api/user/fix')
+          .then(res => {
+            this.stats[2]['title']=res.data['fail']
+            this.stats[2]['number']=res.data['succ']
+          }, res => {
+            console.log(res);
+          })
+      this.axios.get('/api/user/money')
+          .then(res => {
+            this.desserts = res.data
+          }, res => {
+            console.log(res);
+          })
+      this.axios.get('/api/user/todayfix')
+          .then(res => {
+            this.fix = res.data
+          }, res => {
+            console.log(res);
+          })
+    },
   },
 };
 </script>

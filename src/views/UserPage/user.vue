@@ -5,6 +5,7 @@
         :mini-variant="$vuetify.breakpoint.lgAndDown"
         expand-on-hover
         v-model="drawerDisplay"
+        bottom
     >
       <v-list-item two-line>
         <v-list-item-content>
@@ -28,7 +29,6 @@
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
-
           <v-list-item-content>
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item-content>
@@ -46,8 +46,6 @@
 
       <v-btn icon>
         <v-icon>mdi-bell-outline</v-icon>
-      </v-btn>
-      <v-btn icon><v-icon>mdi-apps-box</v-icon>
       </v-btn>
 
       <v-menu transition="slide-y-transition" bottom offset-y>
@@ -118,7 +116,7 @@
                   </v-col>
                 </v-row>
               </v-container>
-              <small>*indicates required field</small>
+              <small>带*为必填项</small>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -154,10 +152,13 @@
                   <v-text-field
                       :append-icon="show3 ? 'mdi-eye' : 'mdi-eye-off'"
                       :type="show3 ? 'text' : 'password'"
-                      v-model="oldPass"
+                      v-model="pass.oldPass"
                       label="旧密码*"
                       required
                       @click:append="show3 = !show3"
+                      :error-messages="opErrors"
+                      @input="$v.pass.oldPass.$touch()"
+                      @blur="$v.pass.oldPass.$touch()"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
@@ -168,6 +169,9 @@
                       v-model="pass.newPass"
                       required
                       @click:append="show4 = !show4"
+                      :error-messages="npErrors"
+                      @input="$v.pass.newPass.$touch()"
+                      @blur="$v.pass.newPass.$touch()"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
@@ -175,19 +179,22 @@
                       :append-icon="show4 ? 'mdi-eye' : 'mdi-eye-off'"
                       :type="show4 ? 'text' : 'password'"
                       label="确认新密码*"
-                      v-model="confirmPass"
+                      v-model="pass.confirmPass"
                       required
                       @click:append="show4 = !show4"
+                      :error-messages="cpErrors"
+                      @input="$v.pass.confirmPass.$touch()"
+                      @blur="$v.pass.confirmPass.$touch()"
                   ></v-text-field>
                 </v-col>
               </v-row>
             </v-container>
-            <small>*indicates required field</small>
+            <small>带*为必填项</small>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="blue darken-1" text @click="change_Pass">保 存</v-btn>
-            <v-btn color="blue darken-1" text @click="changepass = false">关 闭</v-btn>
+            <v-btn color="blue darken-1" text @click="close">关 闭</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -223,21 +230,22 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required,maxLength,minLength,numeric} from 'vuelidate/lib/validators'
+import { mdiAccountCircle,mdiPost,mdiHammerScrewdriver} from '@mdi/js'
 export default {
   data (){
     return{
       savemess:null, show:false, show2:false,read:true, dialog:false,
-      oldPass:null,confirmPass:null,changePassMess:null,changepass:false,show3:false,show4:false,
+      changePassMess:null,changepass:false,show3:false,show4:false,
       name: window.sessionStorage.getItem('name'),
       drawerDisplay: null,
       mess:{real:"", phone:"", addr:"", passwd:"",login:window.sessionStorage.getItem('loginname')},
-      pass:{newPass:"",login:window.sessionStorage.getItem('name')},
+      pass:{oldPass:"",confirmPass:"",newPass:"",login:window.sessionStorage.getItem('loginname')},
       drawer: [
         {title: "首页", icon: "mdi-home", to: "/user",},
-        {title: "业主信息", icon: "mdi-home", to: "/user/custmess",},
+        {title: "业主信息", icon: mdiAccountCircle, to: "/user/custmess",},
         {title: "收费管理", icon: "mdi-cash-100", to: "/user/charge",},
-        {title: "报修管理", icon: "mdi-face-profile", to: "/user/fix",},
-        {title: "公告管理", icon: "mdi-login", to: "/user/poster",},
+        {title: "报修管理", icon: mdiHammerScrewdriver, to: "/user/fix",},
+        {title: "公告管理", icon: mdiPost, to: "/user/poster",},
       ],
     }
   },
@@ -247,6 +255,11 @@ export default {
     mess: {
       phone:{required,minLength:minLength(11),maxLength:maxLength(11),numeric},
     },
+    pass:{
+      oldPass: {required,minLength:minLength(8)},
+      newPass: {required,minLength:minLength(8)},
+      confirmPass: {required,minLength:minLength(8)},
+    }
   },
 
   computed: {
@@ -258,14 +271,43 @@ export default {
       !this.$v.mess.phone.numeric && errors.push('手机号仅支持数字输入')
       !this.$v.mess.phone.required && errors.push('手机号不可为空')
       return errors
-    }
     },
+    opErrors(){
+      const errors = []
+      if (!this.$v.pass.oldPass.$dirty) return errors
+      !this.$v.pass.oldPass.minLength && errors.push('密码至少8位字符')
+      !this.$v.pass.oldPass.required && errors.push('密码不可为空')
+      return errors
+    },
+    npErrors(){
+      const errors = []
+      if (!this.$v.pass.newPass.$dirty) return errors
+      !this.$v.pass.newPass.minLength && errors.push('密码至少8位字符')
+      !this.$v.pass.newPass.required && errors.push('密码不可为空')
+      return errors
+    },
+    cpErrors(){
+      const errors = []
+      if (!this.$v.pass.confirmPass.$dirty) return errors
+      !this.$v.pass.confirmPass.minLength && errors.push('密码至少8位字符')
+      !this.$v.pass.confirmPass.required && errors.push('密码不可为空')
+      return errors
+    },
+    },
+
   mounted() {
     this.drawerDisplay = this.$vuetify.breakpoint.lgAndDown ? false : true;
     this.query();
   },
 
   methods:{
+    close () {
+      this.pass.oldPass="";
+      this.pass.confirmPass="";
+      this.pass.newPass="";
+      this.changepass = false
+      this.$v.$reset()
+    },
     signout:function (){
       this.$router.push({ path:'/',});
     },
@@ -301,30 +343,20 @@ export default {
         }
     },
     change_Pass:function (){
-      if(this.oldPass != this.mess.passwd){
-        this.changePassMess = "旧密码错误，请重新输入";
-        this.oldPass="";
-        this.show2=true;
-      }else if(this.confirmPass!= this.pass.newPass){
-        this.changePassMess = "两次密码不一致，请重新输入";
-        this.confirmPass="";
-        this.pass.newPass="";
-        this.show2=true;
-      }else if(this.confirmPass== this.oldPass){
-        this.changePassMess = "新密码与旧密码一致";
-        this.confirmPass="";
-        this.pass.newPass="";
-        this.show2=true;
-      }else{
+      if(this.$v.$invalid||this.$v.$error){
+        this.$v.$touch()
+      }
+      else {
         this.axios.post('/api/user/changeuserpass', JSON.stringify(this.pass),
         ).then(res => {//true
           this.changePassMess = res.data["mess"];
           this.show2=true;
           this.query();
-          this.oldPass="";
-          this.confirmPass="";
+          this.pass.oldPass="";
+          this.pass.confirmPass="";
           this.pass.newPass="";
         })
+        this.close()
       }
     },
   },

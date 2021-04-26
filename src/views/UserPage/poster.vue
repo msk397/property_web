@@ -81,7 +81,7 @@
                   <v-col cols="12" sm="6" md="6">
                     <v-text-field
                         v-model="editedItem.poster_title"
-                        label="标题"
+                        label="标题*"
                         :counter="20"
                         required
                         :error-messages="titleErrors"
@@ -149,12 +149,9 @@
                         ref="menu"
                         v-model="timeChoose"
                         :close-on-content-click="false"
-                        :nudge-right="40"
                         :return-value.sync="editedItem.poster_time"
                         transition="scale-transition"
-                        offset-y
-                        max-width="290px"
-                        min-width="290px"
+                        offset-x
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
@@ -164,14 +161,15 @@
                             readonly
                             v-bind="attrs"
                             v-on="on"
+                            bottom
                         ></v-text-field>
                       </template>
                       <v-time-picker
                           scrollable
                           v-if="timeChoose"
                           v-model="editedItem.poster_time"
-                          full-width
                           format="24hr"
+
                       >
                         <v-spacer></v-spacer>
                         <v-btn
@@ -200,7 +198,7 @@
                     <v-textarea
                         outlined
                         v-model="editedItem.poster_log"
-                        label="公告详情"
+                        label="公告详情*"
                         counter="200"
                         required
                         :error-messages="logErrors"
@@ -209,6 +207,7 @@
                     ></v-textarea>
                   </v-col>
                 </v-row>
+                <small>带*为必填项</small>
               </v-container>
             </v-card-text>
 

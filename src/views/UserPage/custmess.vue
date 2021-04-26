@@ -35,7 +35,7 @@
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
                         v-model="editedItem.cust_loginname"
-                        label="用户名"
+                        label="用户名*"
                         v-if="editedIndex == -1"
                         required
                         :error-messages="loginErrors"
@@ -45,7 +45,7 @@
                     ></v-text-field>
                     <v-text-field
                         v-model="editedItem.cust_loginname"
-                        label="用户名"
+                        label="用户名*"
                         disabled
                         v-if="editedIndex != -1"
                     ></v-text-field>
@@ -56,7 +56,7 @@
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
                         v-model="editedItem.cust_name"
-                        label="姓名"
+                        label="姓名*"
                         required
                         :error-messages="nameErrors"
                         @input="$v.editedItem.cust_name.$touch()"
@@ -86,7 +86,7 @@
                     <v-spacer></v-spacer>
                     <v-col class="d-flex" cols="12" sm="6" md="4">
                       <v-text-field
-                          label="门牌号"
+                          label="门牌号*"
                           v-model="editedItem.cust_door"
                           required
                           :error-messages="doorErrors"
@@ -100,7 +100,7 @@
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
                         v-model="editedItem.cust_phone"
-                        label="联系方式"
+                        label="联系方式*"
                         required
                         counter="11"
                         :error-messages="phoneErrors"
@@ -119,7 +119,9 @@
                       >重置密码</v-btn>
                     </v-col>
                   </v-row>
+                <small>带*为必填项</small>
               </v-container>
+
             </v-card-text>
 
             <v-card-actions>
