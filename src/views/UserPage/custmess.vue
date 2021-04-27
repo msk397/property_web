@@ -1,4 +1,5 @@
 <template>
+  <div>
   <v-data-table
       :headers="headers"
       :items="desserts"
@@ -36,7 +37,7 @@
                     <v-text-field
                         v-model="editedItem.cust_loginname"
                         label="用户名*"
-                        v-if="editedIndex == -1"
+                        v-if="editedIndex === -1"
                         required
                         :error-messages="loginErrors"
                         @input="$v.editedItem.cust_loginname.$touch()"
@@ -47,7 +48,7 @@
                         v-model="editedItem.cust_loginname"
                         label="用户名*"
                         disabled
-                        v-if="editedIndex != -1"
+                        v-if="editedIndex !== -1"
                     ></v-text-field>
                   </v-col>
 
@@ -112,7 +113,7 @@
                   <v-spacer></v-spacer>
                     <v-col cols="12" sm="6" md="4">
                       <v-btn
-                          v-if="editedIndex != -1"
+                          v-if="editedIndex !== -1"
                           depressed
                           color="error"
                           @click="resetPass"
@@ -134,7 +135,8 @@
         </v-dialog>
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
-            <v-card-title class="headline">确定要删除该信息吗?</v-card-title>
+            <v-card-title class="headline">警告</v-card-title>
+            <v-card-text>确定要删除该信息吗?</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
@@ -150,7 +152,7 @@
             <v-card-text>{{newPass}}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="reset = false,setpass">OK</v-btn>
+              <v-btn color="blue darken-1" text @click="setpass">OK</v-btn>
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
@@ -167,6 +169,24 @@
       <v-btn color="primary" @click="initialize">Reset</v-btn>
     </template>
   </v-data-table>
+    <v-snackbar
+        top
+        v-model="bar"
+        :timeout="3000"
+    >
+      {{ mess }}
+      <template v-slot:action="{ attrs }">
+        <v-btn
+            color="blue"
+            text
+            v-bind="attrs"
+            @click="bar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+  </div>
 </template>
 
 <script>
@@ -175,6 +195,7 @@ import { required,maxLength,minLength,alphaNum,numeric} from 'vuelidate/lib/vali
 export default {
   data: () => ({
     /*    nowDate:new Date().toLocaleDateString(),*/
+    mess:"",bar:false,
     floor:['1','2','3','4','5','6','7','8'],
     reset:false,
     resetpass:'pass',
@@ -247,7 +268,7 @@ export default {
     },
     formTitle () {return this.editedIndex === -1 ? '添加信息' : '编辑信息'},
     newPass () {return this.resetpass},
-    setpass(){this.resetpass='pass'},
+
   },
 
   watch: {
@@ -261,13 +282,15 @@ export default {
 
   methods: {
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
-
+    setpass(){
+      this.reset = false
+      this.resetpass='pass'
+    },
     initialize () {
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
       this.axios.get('/api/userCust/queryCust')
           .then(res => {
-            console.log(res.data);
             this.desserts=res.data;
             this.loadin=!this.loadin;
           },res => {
@@ -283,6 +306,8 @@ export default {
           },res => {
             console.log(res);
           })
+      this.mess = "密码重置成功"
+      this.bar = true
       this.reset = true
     },
 
@@ -302,6 +327,8 @@ export default {
       this.desserts.splice(this.editedIndex, 1)
       var  mess = {'id':this.editedItem.cust_id}
       this.axios.post('/api/userCust/DelCust', JSON.stringify(mess))
+      this.mess = "删除用户成功"
+      this.bar = true
       this.closeDelete()
     },
 
@@ -330,6 +357,8 @@ export default {
         if (this.editedIndex > -1) {
         /*修改*/
         this.axios.post('/api/userCust/changeCustMess', JSON.stringify(this.editedItem))
+          this.mess = "修改成功"
+          this.bar = true
       } else {
         /*增加*/
         var mess = this.editedItem
@@ -341,6 +370,8 @@ export default {
             },res => {
               console.log(res);
             })
+          this.mess = "添加成功"
+          this.bar = true
         this.reset = true
       }
         this.initialize()

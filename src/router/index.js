@@ -29,7 +29,7 @@ const routes = [
             import("../views/UserPage/fix"),
       }, {
         path: "/user/custmess",
-        name: "user-mess",
+        name: "user-custmess",
         component: () =>
             import("../views/UserPage/custmess"),
       }, {

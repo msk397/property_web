@@ -1,13 +1,15 @@
 <template>
+  <div>
   <v-data-table
       :headers="headers"
       :items="desserts"
       :sort-by.sync="sortBy"
       :sort-desc.sync="sortDesc"
       loading="loadin"
+
       multi-sort
       :search="search"
-      loading-text="Waiting"
+
   >
 <!--  颜色  -->
     <template v-slot:item.charge_status="{item }">
@@ -66,7 +68,7 @@
                     <v-select
                         :items="custname"
                         label="姓名"
-                        v-if="editedIndex == -1"
+                        v-if="editedIndex === -1"
                         v-model="editedItem.cust_name"
                         required
                         :error-messages="nameErrors"
@@ -76,7 +78,7 @@
                     <v-text-field
                         v-model="editedItem.cust_name"
                         label="姓名"
-                         v-if="editedIndex != -1"
+                         v-if="editedIndex !== -1"
                         disabled
                     ></v-text-field>
                   </v-col>
@@ -215,6 +217,24 @@
       </v-btn>
     </template>
   </v-data-table>
+    <v-snackbar
+        top
+        v-model="bar"
+        :timeout="3000"
+    >
+      {{ mess }}
+      <template v-slot:action="{ attrs }">
+        <v-btn
+            color="blue"
+            text
+            v-bind="attrs"
+            @click="bar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+  </div>
 </template>
 
 <script>
@@ -229,6 +249,7 @@ export default {
     }
   },
   data: () => ({
+    mess:"",bar:false,
     modal: false, search:"", sortBy:"charge_ddl", sortDesc:false, dialog: false, dialogDelete: false,
     headers: [
       {text: '业主姓名', align: 'start', value: 'cust_name',},
@@ -280,7 +301,7 @@ export default {
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
 
     getColor (calories) {
-      if (calories == "已缴费") return 'green'
+      if (calories === "已缴费") return 'green'
       else return 'red'
     },
 
@@ -316,6 +337,8 @@ export default {
     deleteItemConfirm () {
       this.desserts.splice(this.editedIndex, 1)
       this.axios.post('/api/userCharge/DelCharge', JSON.stringify(this.editedItem))
+      this.mess = "删除成功"
+      this.bar = true
       this.closeDelete()
     },
 
@@ -344,9 +367,13 @@ export default {
         if (this.editedIndex > -1) {
           /*修改*/
           this.axios.post('/api/userCharge/changeCharge', JSON.stringify(this.editedItem))
+          this.mess = "修改成功"
+          this.bar = true
         } else {
           /*增加*/
           this.axios.post('/api/userCharge/AddCharge', JSON.stringify(this.editedItem))
+          this.mess = "添加缴费记录成功"
+          this.bar = true
         }
         this.initialize()
         this.close()

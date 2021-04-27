@@ -1,4 +1,5 @@
 <template>
+  <div>
   <v-data-table
       :headers="headers"
       :items="desserts"
@@ -140,6 +141,24 @@
       </v-btn>
     </template>
   </v-data-table>
+    <v-snackbar
+        top
+        v-model="bar"
+        :timeout="3000"
+    >
+      {{ mess }}
+      <template v-slot:action="{ attrs }">
+        <v-btn
+            color="blue"
+            text
+            v-bind="attrs"
+            @click="bar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+  </div>
 </template>
 
 <script>
@@ -153,6 +172,7 @@ export default {
     }
   },
   data: () => ({
+    mess:"",bar:false,
     modal: false,
     search:"",
     sortBy:"charge_ddl",
@@ -200,7 +220,7 @@ export default {
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
 
     getColor (calories) {
-      if (calories == "已处理") return 'green'
+      if (calories === "已处理") return 'green'
       else return 'red'
     },
 
@@ -242,6 +262,8 @@ export default {
       this.desserts.splice(this.editedIndex, 1)
       var delfix = {'id':this.editedItem.fix_id}
       this.axios.post('/api/userFix/DelFix', JSON.stringify(delfix))
+      this.mess = "删除成功"
+      this.bar = true
       this.closeDelete()
     },
 
@@ -261,7 +283,6 @@ export default {
         this.editedIndex = -1
       })
     },
-    /*缴费信息保存*/
     save () {
       if(this.$v.$invalid||this.$v.$error){
         this.$v.$touch()
@@ -273,6 +294,8 @@ export default {
         delete mess.admin_name
         delete mess.admin_id
         this.axios.post('/api/userFix/changeFix', JSON.stringify(mess))
+        this.mess = "修改成功"
+        this.bar = true
         this.initialize()
         this.close()
       }

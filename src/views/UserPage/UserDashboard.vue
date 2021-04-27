@@ -16,9 +16,9 @@
                 </div>
 
                 <div>
-                  <v-icon :color="item.color"  x-large v-if="i==0">{{ item.icon }}</v-icon>
+                  <v-icon :color="item.color"  x-large v-if="i===0">{{ item.icon }}</v-icon>
                   <v-progress-circular
-                      v-if="i==1||i==2"
+                      v-if="i===1||i===2"
                       :rotate="270"
                       :size="50"
                       :value="item.number"
@@ -51,36 +51,22 @@
                   待处理缴费信息
                 </div>
               </div>
-
-              <div>
-                <v-btn color="primary" small>处 理</v-btn>
-              </div>
             </div>
-
-            <v-simple-table class="mt-4" height="450">
-              <template v-slot:default>
-                <thead class="primary ">
-                <tr>
-                  <th class="text-left white--text">业主姓名</th>
-                  <th class="text-left white--text">金 额</th>
-                  <th class="text-left white--text">类 型</th>
-                  <th class="text-left white--text">截止日期</th>
-                  <th class="text-left white--text">通 知</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="item in desserts" :key="item.name">
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.charge_cost }}</td>
-                  <td>{{ item.charge_memo }}</td>
-                  <td>{{ item.charge_ddl }}</td>
-                  <td><v-btn color="error">提 醒</v-btn></td>
-                </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
+            <template>
+              <v-data-table
+                  :headers="headers"
+                  :items="desserts"
+                  :items-per-page="5"
+                  class="elevation-24"
+              >
+                <template v-slot:item.actions="{ item }">
+                  <v-btn color="error" @click="moneyalert(item)">提 醒</v-btn>
+                </template>
+              </v-data-table>
+            </template>
           </v-card>
           <v-col></v-col>
+
           <v-card outlined class="pa-10">
             <div class="d-flex align-center justify-space-between">
               <div class="text-h6">
@@ -89,83 +75,146 @@
 
             </div>
 
-            <v-simple-table class="mt-4" height="450">
-              <template v-slot:default>
-                <thead class="primary ">
-                <tr>
-                  <th class="white--text">姓 名</th>
-                  <th class="white--text">地 址</th>
-                  <th class="white--text">详 情</th>
-                  <th class="white--text">通 知</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="item in fix" :key="item.name">
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.addr }}</td>
-                  <td>{{ item.fix_log }}</td>
-                  <td><v-btn color="green">处 理</v-btn></td>
-                </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
+            <template>
+              <v-data-table
+                  :headers="fixheader"
+                  :items="fix"
+                  :items-per-page="5"
+                  class="elevation-24"
+              >
+<!--                <template v-slot:item.actions="{ item }">
+                  <v-btn color="primary">处 理</v-btn>
+                </template>-->
+              </v-data-table>
+            </template>
+
           </v-card>
         </v-col>
 
         <v-col cols="12" lg="6" xl="5">
           <v-card class="pa-10 fill-height" outlined>
-            <div>
-              <div class="subtitle-2">
-                PERFORMANCE
-              </div>
-
+            <div class="d-flex align-center justify-space-between">
               <div class="text-h6">
-                Total orders
+                公 告
               </div>
             </div>
+            <v-carousel
+                cycle
+                height="400"
+                hide-delimiter-background
+                show-arrows-on-hover
 
-            <apexchart
-              v-if="chart"
-              width="100%"
-              height="900"
-              class="mt-4"
-              type="bar"
-              :options="optionsBar"
-              :series="series"
-            ></apexchart>
+            >
+              <v-carousel-item v-for="item in poster" :key="item.poster_id">
+                        <v-card
+                            class="mx-auto"
+                            color="#26c6da"
+                            height="100%">
+                          <v-card-title>
+                            <v-icon large left>mdi-twitter</v-icon>
+                            <span class="title font-weight-light">{{item.poster_title}}</span>
+                          </v-card-title>
+                            <v-card-text >{{item.poster_log}}</v-card-text>
+                          <v-card-actions>
+                            <v-list-item class="grow">
+                              <v-list-item-avatar color="grey darken-3">
+                                <v-img
+                                    class="elevation-6"
+                                    alt=""
+                                    src="https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Prescription02&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"
+                                ></v-img>
+                              </v-list-item-avatar>
+                              <v-list-item-content>
+                                <v-list-item-title>{{item.admin_name}}</v-list-item-title>
+                              </v-list-item-content>
+                              <v-list-item-content>
+                                <v-list-item-title>发布时间：{{item.time}}</v-list-item-title>
+                              </v-list-item-content>
+                            </v-list-item>
+                          </v-card-actions>
+                        </v-card>
+              </v-carousel-item>
+            </v-carousel>
+
+
+            <v-col >
+              <div class="text-h6">
+                未发布公告
+              </div>
+
+              <template>
+                <v-data-table
+                    :headers="posterheader"
+                    :items="unposter"
+                    :items-per-page="5"
+                    class="elevation-24"
+                    loading-text="无未发布的公告"
+                    loading=false
+                >
+                  <template v-slot:item.actions="{ item }">
+                    <v-btn color="primary" @click="post(item)">立即发布</v-btn>
+                  </template>
+                </v-data-table>
+              </template>
+            </v-col>
           </v-card>
         </v-col>
       </v-row>
     </v-sheet>
+    <v-snackbar
+        top
+        v-model="bar1"
+        :timeout="3000"
+    >
+      {{ mess }}
+      <template v-slot:action="{ attrs }">
+        <v-btn
+            color="blue"
+            text
+            v-bind="attrs"
+            @click="bar1 = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
+
 </template>
 
 <script>
 import { mdiAccountGroup } from '@mdi/js'
 export default {
   data: () => ({
+    bar1:false,
+    headers: [
+      {text: '姓 名', align: 'start', value: 'name'},
+      { text: '金 额', value: 'charge_cost'},
+      { text: '类 型', value: 'charge_memo' },
+      { text: '截止日期', value: 'charge_ddl'},
+      { text: 'Actions', value: 'actions', sortable: false },
+    ],
+    fixheader: [
+      {text: '姓 名', align: 'start', value: 'name'},
+      { text: '地 址', value: 'addr',sortable: false},
+      { text: '详 情', value: 'fix_log',sortable: false},
+      // { text: 'Actions', value: 'actions', sortable: false },
+    ],
+    posterheader: [
+      {text: '标 题', align: 'start', value: 'poster_title',width:100, sortable: false,},
+      { text: '发布时间', value: 'time'},
+      { text: '截止时间', value: 'endtime',},
+      { text: 'Actions', value: 'actions', sortable: false, },
+    ],
     chart: false,
     stats: [
-      {
-        label: "当前业主数",
-        title: "350,897",
-        number: "",
-        desc: "",
-        icon: mdiAccountGroup,
-        color: "error",
+      {label: "当前业主数", title: "", number: "", desc: "",
+        icon: mdiAccountGroup, color: "error",
       },
-      {
-        label: "今日应收钱款",
-        title: "",
-        number: "",
-        desc: "",
+      {label: "待处理缴费条目", title: "", number: "", desc: "",
         color: "warning",
       },
-      {
-        label: "维修率",
-        title: "",
-        number: "",
-        desc: "",
+      {label: "待处理维修条目", title: "", number: "", desc: "",
         color: "accent",
       },
     ],
@@ -214,33 +263,13 @@ export default {
         data: [30, 40, 45, 50, 49, 60, 70, 91],
       },
     ],
-    desserts: [],fix:[],
-    traffics: [
-      {
-        name: "Facebook",
-        visitors: "1,230",
-        rate: "40",
-        color: "success",
-      },
-      {
-        name: "Google",
-        visitors: "4,350",
-        rate: "12",
-        color: "primary",
-      },
-      {
-        name: "Instagram",
-        visitors: "6,687",
-        rate: "65",
-        color: "secondary",
-      },
-      {
-        name: "twitter",
-        visitors: "5,106",
-        rate: "71",
-        color: "accent",
-      },
-    ],
+    desserts: [],
+    fix:[],
+    mess:"",
+    length: 3,
+    window: 0,
+    poster:[],
+    unposter:[],
   }),
   mounted() {
     this.chart = true;
@@ -250,6 +279,24 @@ export default {
   },
   methods: {
     initialize() {
+      this.axios.get('/api/user/poster')
+          .then(res => {
+            this.poster=res.data
+          }, res => {
+            console.log(res);
+          })
+      this.axios.get('/api/user/unposter')
+          .then(res => {
+            this.unposter=res.data
+          }, res => {
+            console.log(res);
+          })
+      this.axios.get('/api/user/postercount')
+          .then(res => {
+            this.length = res.data
+          }, res => {
+            console.log(res);
+          })
       this.axios.get('/api/user/custnum')
           .then(res => {
             this.stats[0]['title']=res.data
@@ -280,6 +327,25 @@ export default {
           .then(res => {
             this.fix = res.data
           }, res => {
+            console.log(res);
+          })
+    },
+    moneyalert(item){
+      this.axios.post('/api/user/moneyalert', JSON.stringify(item))
+          .then(res => {
+            this.mess = res.data["mess"]
+            this.bar1 = true
+          },res => {
+            console.log(res);
+          })
+    },
+    post(item){
+      var mess = {"id":item.poster_id}
+      this.axios.post('/api/user/post', JSON.stringify(mess))
+          .then(res => {
+            this.mess = res.data["mess"]
+            this.bar1 = true
+          },res => {
             console.log(res);
           })
     },
