@@ -2,336 +2,276 @@
   <div class="px-4">
     <v-sheet color="transparent">
       <v-row>
-        <v-col cols="12" md="6" lg="3" v-for="(item, i) in stats" :key="i">
-          <v-card class="py-6 px-10" outlined>
-            <div>
-              <div class="d-flex justify-space-between align-center">
-                <div>
-                  <div class="subtitle-2 text--secondary">
-                    {{ item.label }}
-                  </div>
-                  <div class="text-h6 mt-1">
-                    {{ item.title }}
-                  </div>
-                </div>
-
-                <div>
-                  <v-icon :color="item.color" x-large>{{ item.icon }}</v-icon>
-                </div>
-              </div>
-
-              <div class="subtitle-2 d-flex align-center mt-5">
-                <v-icon small color="success">mdi-arrow-up </v-icon>
-                <div>
-                  <span class="success--text">{{ item.number }}</span>
-
-                  <span class="ml-2 text--secondary">
-                    {{ item.desc }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <v-row>
         <v-col cols="12" lg="6" xl="7">
-          <v-card class="pa-10" outlined>
+          <v-card class="pa-10 elevation-5" outlined>
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="subtitle-2">
-                  OVERVIEW
-                </div>
-
                 <div class="text-h6">
-                  Sales value
+                  待处理缴费信息
                 </div>
               </div>
+            </div>
+            <template>
+              <v-data-table
+                  :headers="headers"
+                  :items="desserts"
+                  :items-per-page="5"
+                  class="elevation-24"
+              >
+                <template v-slot:item.actions="{ item }">
+                  <v-btn color="primary" @click="moneyalert(item)">缴 费</v-btn>
+                </template>
+              </v-data-table>
+            </template>
+          </v-card>
+          <v-col></v-col>
 
-              <div>
-                <v-btn color="primary" small>Month</v-btn>
+          <v-card outlined class="pa-10 elevation-5">
+            <div class="d-flex align-center justify-space-between">
+              <div class="text-h6">
+                已提交的维修记录
               </div>
+              <v-spacer></v-spacer>
+              <v-dialog
+                  v-model="dialog"
+                  max-width="300px"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                      color="primary"
+                      dark
+                      class="mb-2"
+                      v-bind="attrs"
+                      v-on="on"
+                  >
+                    报 修
+                  </v-btn>
+                </template>
+                <v-card ref="form">
+                  <v-card-title>
+                    <span class="headline">添加报修记录</span>
+                  </v-card-title>
+
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                          <v-textarea
+                              outlined
+                              auto-grow
+                              clearable
+                              clear-icon="mdi-close-circle"
+                              v-model="savelog"
+                              label="详 情*"
+                              counter="50"
+                              required
+                              :error-messages="logErrors"
+                              @input="$v.savelog.$touch()"
+                              @blur="$v.savelog.$touch()"
+                          ></v-textarea>
+                        <v-spacer></v-spacer>
+                      </v-row>
+                      <small>带*为必填项</small>
+                    </v-container>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="close"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="save"
+                    >
+                      Save
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
             </div>
 
-            <apexchart
-              v-if="chart"
-              width="100%"
-              height="500"
-              class="mt-4"
-              type="line"
-              :options="optionsLine"
-              :series="series"
-              id="vuechart-line"
-            ></apexchart>
+            <template>
+              <v-data-table
+                  :headers="fixheader"
+                  :items="fix"
+                  :items-per-page="5"
+                  class="elevation-24"
+              >
+                <template v-slot:item.fix_status="{item }">
+                  <v-chip :color="getColor(item.fix_status)" dark>{{ item.fix_status}}</v-chip>
+                </template>
+              </v-data-table>
+
+            </template>
+
           </v-card>
         </v-col>
 
         <v-col cols="12" lg="6" xl="5">
-          <v-card class="pa-10 fill-height" outlined>
-            <div>
-              <div class="subtitle-2">
-                PERFORMANCE
-              </div>
-
-              <div class="text-h6">
-                Total orders
-              </div>
-            </div>
-
-            <apexchart
-              v-if="chart"
-              width="100%"
-              height="500"
-              class="mt-4"
-              type="bar"
-              :options="optionsBar"
-              :series="series"
-            ></apexchart>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col cols="12" lg="6" xl="7">
-          <v-card outlined class="pa-10">
+          <v-card class="pa-10 fill-height elevation-5" outlined>
             <div class="d-flex align-center justify-space-between">
               <div class="text-h6">
-                Page visits
+                公 告
               </div>
-
-              <v-btn small color="primary">See All</v-btn>
             </div>
-
-            <v-simple-table class="mt-4">
-              <template v-slot:default>
-                <thead class="primary ">
-                  <tr>
-                    <th class="text-left white--text">
-                      PAGE NAME
-                    </th>
-                    <th class="text-left white--text">
-                      VISITORS
-                    </th>
-                    <th class="text-left white--text">
-                      UNIQUE USERS
-                    </th>
-                    <th class="text-left white--text">
-                      BOUNCE RATE
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in desserts" :key="item.name">
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.visitors }}</td>
-                    <td>{{ item.users }}</td>
-                    <td>
-                      <v-icon left small :color="item.color">
-                        {{ item.icon }}
-                      </v-icon>
-                      {{ item.rate }}
-                    </td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" lg="6" xl="5">
-          <v-card outlined class="pa-10">
-            <div class="d-flex align-center justify-space-between">
-              <div class="text-h6">
-                Social traffic
-              </div>
-
-              <v-btn small color="primary">See All</v-btn>
-            </div>
-
-            <v-simple-table class="mt-4">
-              <template v-slot:default>
-                <thead>
-                  <tr>
-                    <th class="text-left">
-                      REFERRAL
-                    </th>
-                    <th class="text-left">
-                      VISITORS
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in traffics" :key="item.name">
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.visitors }}</td>
-                    <td class="d-flex align-center">
-                      <div class="mr-2">
-                        {{ item.rate }}
-                      </div>
-
-                      <v-progress-linear
-                        :color="item.color"
-                        v-model="item.rate"
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
+            <v-carousel
+                cycle
+                hide-delimiter-background
+                show-arrows-on-hover
+            >
+              <v-carousel-item v-for="item in poster" :key="item.poster_id">
+                <v-card
+                    class="mx-auto"
+                    color="#26c6da"
+                    height="100%">
+                  <v-card-title>
+                    <v-icon large left>mdi-twitter</v-icon>
+                    <span class="title font-weight-light">{{item.poster_title}}</span>
+                  </v-card-title>
+                  <v-card-text >{{item.poster_log}}</v-card-text>
+                  <v-card-actions>
+                    <v-list-item class="grow">
+                      <v-list-item-avatar color="grey darken-3">
+                        <v-img
+                            class="elevation-6"
+                            alt=""
+                            src="../../static/head.svg"
+                        ></v-img>
+                      </v-list-item-avatar>
+                      <v-list-item-content>
+                        <v-list-item-title>{{item.admin_name}}</v-list-item-title>
+                      </v-list-item-content>
+                      <v-list-item-content>
+                        <v-list-item-title>发布时间：{{item.time}}</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-card-actions>
+                </v-card>
+              </v-carousel-item>
+            </v-carousel>
           </v-card>
         </v-col>
       </v-row>
     </v-sheet>
+    <v-snackbar
+        top
+        v-model="bar1"
+        :timeout="3000"
+    >
+      {{ mess }}
+      <template v-slot:action="{ attrs }">
+        <v-btn
+            color="blue"
+            text
+            v-bind="attrs"
+            @click="bar1 = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
+
 </template>
 
 <script>
+import { validationMixin } from 'vuelidate'
+import {maxLength, required,} from 'vuelidate/lib/validators'
 export default {
+  mixins: [validationMixin],
+  validations: {
+    savelog:{required,maxLength:maxLength(50)},
+  },
   data: () => ({
+    bar1:false,dialog:false,
+    headers: [
+      {text: '姓 名', align: 'start', value: 'name'},
+      { text: '金 额', value: 'charge_cost'},
+      { text: '类 型', value: 'charge_memo' },
+      { text: '截止日期', value: 'charge_ddl'},
+      { text: 'Actions', value: 'actions', sortable: false },
+    ],
+    fixheader: [
+      { text: '详 情',align: 'start', value: 'fix_log',sortable: false},
+      { text: '报修时间', value: 'fix_startime'},
+      { text: '维修时间', value: 'fix_endtime'},
+      { text: '维修状态', value: 'fix_status'},
+    ],
     chart: false,
-    stats: [
-      {
-        label: "TOTAL TRAFFIC",
-        title: "350,897",
-        number: "6.68%",
-        desc: "Since last month",
-        icon: "mdi-star",
-        color: "error",
-      },
-      {
-        label: "NEW USERS",
-        title: "4,456",
-        number: "6.68%",
-        desc: "Since last month",
-        icon: "mdi-chart-arc",
-        color: "warning",
-      },
-      {
-        label: "SALES",
-        title: "645",
-        number: "6.68%",
-        desc: "Since last month",
-        icon: "mdi-baby-carriage",
-        color: "accent",
-      },
-      {
-        label: "PERFORMANCE",
-        title: "71.45%",
-        number: "6.68%",
-        desc: "Since last month",
-        icon: "mdi-fan-chevron-up",
-        color: "primary",
-      },
-    ],
-    optionsLine: {
-      theme: {
-        mode: "light",
-        palette: "palette2",
-      },
-
-      stroke: {
-        curve: "smooth",
-      },
-      chart: {
-        id: "vuechart-line",
-        dropShadow: {
-          enabled: true,
-          top: 3,
-          left: 3,
-          blur: 10,
-          opacity: 0.5,
-        },
-      },
-      xaxis: {
-        categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-      },
-    },
-    optionsBar: {
-      theme: {
-        mode: "light",
-        palette: "palette7",
-      },
-
-      stroke: {
-        curve: "smooth",
-      },
-      chart: {
-        id: "vuechart-bar",
-      },
-      xaxis: {
-        categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-      },
-    },
-    series: [
-      {
-        name: "series-1",
-        data: [30, 40, 45, 50, 49, 60, 70, 91],
-      },
-    ],
-    desserts: [
-      {
-        name: "/dashboard/",
-        visitors: "4,660",
-        users: "440",
-        rate: "40%",
-        icon: "mdi-arrow-up",
-        color: "success",
-      },
-      {
-        name: "/dashboard/sign-up",
-        visitors: "3,260",
-        users: "120",
-        rate: "21%",
-        icon: "mdi-arrow-down",
-        color: "error",
-      },
-      {
-        name: "/dashboard/map",
-        visitors: "5,745",
-        users: "321",
-        rate: "63%",
-        icon: "mdi-arrow-up",
-        color: "success",
-      },
-      {
-        name: "/dashboard/table",
-        visitors: "1,564",
-        users: "56",
-        rate: "65%",
-        icon: "mdi-arrow-down",
-        color: "error",
-      },
-    ],
-    traffics: [
-      {
-        name: "Facebook",
-        visitors: "1,230",
-        rate: "40",
-        color: "success",
-      },
-      {
-        name: "Google",
-        visitors: "4,350",
-        rate: "12",
-        color: "primary",
-      },
-      {
-        name: "Instagram",
-        visitors: "6,687",
-        rate: "65",
-        color: "secondary",
-      },
-      {
-        name: "twitter",
-        visitors: "5,106",
-        rate: "71",
-        color: "accent",
-      },
-    ],
+    desserts: [],
+    fix:[],
+    mess:"",
+    poster:[],
+    login:window.sessionStorage.getItem('loginname'),
+    name:window.sessionStorage.getItem('name'),
+    savelog:'',
   }),
   mounted() {
     this.chart = true;
+  },
+  created () {
+    this.initialize()
+  },
+  computed: {
+    logErrors () {
+      const errors = []
+      if (!this.$v.savelog.$dirty) return errors
+      !this.$v.savelog.required && errors.push('详情不可为空')
+      !this.$v.savelog.maxLength && errors.push('详情不可超过50个字符')
+      return errors
+    },
+  },
+  methods: {
+    getColor (calories) {
+      if (calories === "已处理") return 'primary'
+      else return 'red'
+    },
+
+    initialize() {
+      var mess = {"login":this.login}
+      this.axios.get('/api/user/poster')
+          .then(res => {
+            this.poster=res.data
+          }, res => {
+            console.log(res);
+          })
+      this.axios.post('/api/cust/money',JSON.stringify(mess))
+          .then(res => {
+            this.desserts = res.data
+          }, res => {
+            console.log(res);
+          })
+      this.axios.post('/api/cust/fix',JSON.stringify(mess))
+          .then(res => {
+            this.fix = res.data
+          }, res => {
+            console.log(res);
+          })
+    },
+    close () {
+      this.dialog = false
+      this.savelog=""
+      this.$v.savelog.$reset()
+    },
+    save () {
+      if(this.$v.savelog.$invalid||this.$v.savelog.$error){
+        this.$v.savelog.$touch()
+      }
+      else{
+        var mess = {"log":this.savelog,"login":this.name,"time":new Date().toJSON().substring(0, 10) + ' ' + new Date().toTimeString().substring(0,8)}
+        this.axios.post('/api/cust/AddFix', JSON.stringify(mess))
+        this.mess = "报修成功"
+        this.bar1 = true
+        this.initialize()
+        this.close()
+        this.$v.savelog.$reset()
+      }
+    },
   },
 };
 </script>

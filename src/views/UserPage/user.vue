@@ -18,7 +18,25 @@
 
       <v-list nav>
         <v-list-item
+            v-if="id==='1'"
             v-for="item in drawer"
+            :key="item.title"
+            :to="item.to"
+            :href="item.href"
+            :target="item.target"
+            exact
+            color="primary"
+        >
+          <v-list-item-icon>
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item
+            v-if="id==='0'"
+            v-for="item in draweroot"
             :key="item.title"
             :to="item.to"
             :href="item.href"
@@ -44,17 +62,52 @@
 
       <v-spacer />
 
-      <v-btn icon>
-        <v-icon>mdi-bell-outline</v-icon>
-      </v-btn>
+      <v-menu
+          open-on-hover
+          offset-y
+          :value="hover"
+          min-width="300"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-badge
+              bordered
+              transition="slide-x-transition"
+              color="error"
+              :value="logfail"
+              :content="logfail"
+              offset-x="15"
+              offset-y="15"
+          >
+            <v-btn icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-bell-outline</v-icon>
+            </v-btn>
+          </v-badge>
+        </template>
+        <v-list  rounded >
+
+          <v-list-item v-for="item in log" :key="item.log_id" @click="unreadmail(item)" two-line>
+            <v-list-item-content>
+              <v-list-item-title >{{ item.log_title }}</v-list-item-title>
+              <v-list-item-subtitle>{{item.log_time}}</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-spacer/>
+            <v-icon v-if="item.log_status===0">{{unreadmailicon}}</v-icon>
+            <v-icon v-if="item.log_status===1">{{readmailicon}}</v-icon>
+          </v-list-item>
+        </v-list>
+      </v-menu>
 
       <v-menu transition="slide-y-transition" bottom offset-y>
         <template v-slot:activator="{on}">
       <v-btn text v-on="on">
         <div class="d-flex align-center">
-          <v-icon  size="32">
-            mdi-account-circle
-          </v-icon>
+          <v-list-item-avatar color="grey darken-3">
+            <v-img
+                class="elevation-6"
+                alt=""
+                src="../../static/head.svg"
+            ></v-img>
+          </v-list-item-avatar>
           <div class="ml-1 subtitle-2">
             {{ name }}
           </div>
@@ -92,6 +145,9 @@
                         label="姓名*"
                         required
                       :disabled="read"
+                        :error-messages="realErrors"
+                        @input="$v.mess.real.$touch()"
+                        @blur="$v.mess.real.$touch()"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="4" md="4">
@@ -100,6 +156,9 @@
                         v-model="mess.addr"
                         required
                         :disabled="read"
+                        :error-messages="addrErrors"
+                        @input="$v.mess.addr.$touch()"
+                        @blur="$v.mess.addr.$touch()"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
@@ -127,18 +186,40 @@
         </v-dialog>
 
 <!--  修改信息提示框    -->
-      <v-dialog  max-width="200px" v-model="show" >
-        <v-card >
-          <v-card-title class="headline">
-            提示信息
-          </v-card-title>
-          <v-card-text>{{this.savemess}}</v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="show = false">了 解</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <v-snackbar
+          top
+          v-model="show"
+          :timeout="3000"
+      >
+        {{ savemess }}
+        <template v-slot:action="{ attrs }">
+          <v-btn
+              color="blue"
+              text
+              v-bind="attrs"
+              @click="show = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+      <!--查看通知-->
+      <v-snackbar
+          top
+          v-model="showlog"
+      >
+        {{ logmess }}
+        <template v-slot:action="{ attrs }">
+          <v-btn
+              color="blue"
+              text
+              v-bind="attrs"
+              @click="showlog = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
 <!--  修改密码框    -->
       <v-dialog v-model="changepass" persistent max-width="600px">
         <v-card>
@@ -198,27 +279,6 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-
-      <!--  修改密码提示框    -->
-      <v-dialog  max-width="200px" v-model="show2" >
-        <v-card >
-          <v-card-title class="headline">
-            提示信息
-          </v-card-title>
-          <v-card-text>{{this.changePassMess}}</v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-                color="green darken-1"
-                text
-                @click="show2 = false , changepass = changePassMess=='修改成功'? false : true"
-            >
-              了解
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
     </v-app-bar>
 
     <v-main>
@@ -230,10 +290,22 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required,maxLength,minLength,numeric} from 'vuelidate/lib/validators'
-import { mdiAccountCircle,mdiPost,mdiHammerScrewdriver} from '@mdi/js'
+import {
+  mdiAccountCircle,
+  mdiPost,
+  mdiHammerScrewdriver,
+  mdiAccountTie,
+  mdiEmailMarkAsUnread,
+  mdiEmailOpen
+} from '@mdi/js'
 export default {
   data (){
     return{
+      showlog:false,logmess:"",
+      unreadmailicon:mdiEmailMarkAsUnread,readmailicon:mdiEmailOpen,
+      hover:false,
+      logcount:0,logsucc:0,logfail:0,log:[],
+      id:window.sessionStorage.getItem('identity'),
       savemess:null, show:false, show2:false,read:true, dialog:false,
       changePassMess:null,changepass:false,show3:false,show4:false,
       name: window.sessionStorage.getItem('name'),
@@ -247,6 +319,14 @@ export default {
         {title: "报修管理", icon: mdiHammerScrewdriver, to: "/user/fix",},
         {title: "公告管理", icon: mdiPost, to: "/user/poster",},
       ],
+      draweroot: [
+        {title: "首页", icon: "mdi-home", to: "/user",},
+        {title: "员工管理", icon: mdiAccountTie, to: "/user/adminmess",},
+        {title: "业主信息", icon: mdiAccountCircle, to: "/user/custmess",},
+        {title: "收费管理", icon: "mdi-cash-100", to: "/user/charge",},
+        {title: "报修管理", icon: mdiHammerScrewdriver, to: "/user/fix",},
+        {title: "公告管理", icon: mdiPost, to: "/user/poster",},
+      ],
     }
   },
 
@@ -254,6 +334,8 @@ export default {
   validations: {
     mess: {
       phone:{required,minLength:minLength(11),maxLength:maxLength(11),numeric},
+      addr:{required,},
+      real:{required,},
     },
     pass:{
       oldPass: {required,minLength:minLength(8)},
@@ -270,6 +352,18 @@ export default {
       !this.$v.mess.phone.minLength && errors.push('请输入11位格式手机号')
       !this.$v.mess.phone.numeric && errors.push('手机号仅支持数字输入')
       !this.$v.mess.phone.required && errors.push('手机号不可为空')
+      return errors
+    },
+    addrErrors(){
+      const errors = []
+      if (!this.$v.mess.addr.$dirty) return errors
+      !this.$v.mess.addr.required && errors.push('地址不可为空')
+      return errors
+    },
+    realErrors(){
+      const errors = []
+      if (!this.$v.mess.real.$dirty) return errors
+      !this.$v.mess.real.required && errors.push('姓名不可为空')
       return errors
     },
     opErrors(){
@@ -301,6 +395,15 @@ export default {
   },
 
   methods:{
+    unreadmail(itemm){
+      if(itemm.log_status===0){
+        var mess = {"id":itemm.log_id}
+        this.axios.post('/api/cust/readmail', JSON.stringify(mess))
+        this.query()
+      }
+      this.logmess=itemm.log_log;
+      this.showlog=true
+    },
     close () {
       this.pass.oldPass="";
       this.pass.confirmPass="";
@@ -319,6 +422,16 @@ export default {
         /*TODO 这里写啥？*/
         console.log(res);
       })
+      this.axios.post('/api/user/querylog', JSON.stringify({"name":window.sessionStorage.getItem('loginname')}),
+      ).then(res => {//true
+        this.log = res.data[0]
+        this.logcount = res.data[1]+res.data[2]
+        this.logfail=res.data[1]
+        this.logsucc = res.data[2]
+      }, res => {// 错误回调
+        /*TODO 这里写啥？*/
+        console.log(res);
+      })
     },
     edit:function (){
       /*处于只读状态*/
@@ -326,19 +439,20 @@ export default {
           this.read = !this.read;
       }/*处于修改状态*/
         else{
-          if(this.$v.$invalid||this.$v.$error){
-            this.$v.$touch()
+          if(this.$v.mess.$invalid||this.$v.mess.$error){
+            this.$v.mess.$touch()
           }
           else {
             this.axios.post('/api/user/saveusermess', JSON.stringify(this.mess)).then(res => {//true
               this.savemess = res.data["mess"];
               this.show = true;
               this.query();
+              this.read = !this.read;
             }, res => {// 错误回调
               /*TODO 这里写啥？*/
               console.log(res);
             })
-            this.read = !this.read;
+
           }
         }
     },
@@ -349,14 +463,16 @@ export default {
       else {
         this.axios.post('/api/user/changeuserpass', JSON.stringify(this.pass),
         ).then(res => {//true
-          this.changePassMess = res.data["mess"];
-          this.show2=true;
+          this.savemess = res.data["mess"];
+          this.show=true;
           this.query();
           this.pass.oldPass="";
           this.pass.confirmPass="";
           this.pass.newPass="";
+          if(this.savemess === "修改成功"){
+            this.close()
+          }
         })
-        this.close()
       }
     },
   },

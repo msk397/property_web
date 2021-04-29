@@ -6,7 +6,6 @@
       :sort-by.sync="sortBy"
       :sort-desc.sync="sortDesc"
       loading="loadin"
-
       multi-sort
       :search="search"
 
@@ -16,6 +15,7 @@
       <v-chip
           :color="getColor(item.charge_status)"
           dark
+          outlined
       >
         {{ item.charge_status}}
       </v-chip>
@@ -36,22 +36,18 @@
             single-line
             hide-details
         ></v-text-field>
-        <v-spacer></v-spacer>
+        <v-spacer/>
+        <v-btn
+            color="primary"
+            class="mb-2 elevation-5"
+            @click="dialog = true"
+        >
+          添加缴费项目
+        </v-btn>
         <v-dialog
             v-model="dialog"
             max-width="500px"
         >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-                color="primary"
-                dark
-                class="mb-2"
-                v-bind="attrs"
-                v-on="on"
-            >
-              添加缴费项目
-            </v-btn>
-          </template>
           <v-card ref="form">
             <v-card-title>
               <span class="headline">{{ formTitle }}</span>
@@ -193,19 +189,18 @@
     </template>
 <!-- 这里是action里面的图标   -->
     <template v-slot:item.actions="{ item }">
-      <v-icon
-          small
-          class="mr-2"
-          @click="editItem(item)"
-      >
-        mdi-pencil
-      </v-icon>
-      <v-icon
-          small
-          @click="deleteItem(item)"
-      >
-        mdi-delete
-      </v-icon>
+      <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
+        <v-btn icon color="primary" class="elevation-5 ma-2" @click="editItem(item)">
+          <v-icon small v-bind="attrs" v-on="on" >mdi-pencil</v-icon>
+        </v-btn>
+      </template><span>修改信息</span>
+      </v-tooltip>
+      <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
+        <v-btn icon color="error" class="elevation-5 ma-1" @click="deleteItem(item)">
+          <v-icon small v-bind="attrs" v-on="on" >mdi-delete</v-icon>
+        </v-btn>
+      </template><span>删 除</span>
+      </v-tooltip>
     </template>
 
     <template v-slot:no-data>
@@ -301,7 +296,7 @@ export default {
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
 
     getColor (calories) {
-      if (calories === "已缴费") return 'green'
+      if (calories === "已缴费") return 'primary'
       else return 'red'
     },
 

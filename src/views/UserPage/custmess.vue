@@ -3,8 +3,6 @@
   <v-data-table
       :headers="headers"
       :items="desserts"
-      :sort-by.sync="sortBy"
-      :sort-desc.sync="sortDesc"
       loading="loadin"
       multi-sort
       :search="search"
@@ -16,15 +14,15 @@
         <v-toolbar-title>业主信息管理</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details></v-text-field>
-        <v-spacer></v-spacer>
-
+        <v-spacer/>
+        <v-btn
+            color="primary"
+            class="mb-2 elevation-5"
+            @click="dialog = true"
+        >
+          添加信息
+        </v-btn>
         <v-dialog v-model="dialog" max-width="500px">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
-              添加信息
-            </v-btn>
-          </template>
-
           <v-card>
             <v-card-title>
               <span class="headline">{{ formTitle }}</span>
@@ -116,7 +114,7 @@
                           v-if="editedIndex !== -1"
                           depressed
                           color="error"
-                          @click="resetPass"
+                          @click="resetbar = true"
                       >重置密码</v-btn>
                     </v-col>
                   </v-row>
@@ -133,7 +131,7 @@
           </v-card>
 
         </v-dialog>
-        <v-dialog v-model="dialogDelete" max-width="500px">
+        <v-dialog v-model="dialogDelete" max-width="200px">
           <v-card>
             <v-card-title class="headline">警告</v-card-title>
             <v-card-text>确定要删除该信息吗?</v-card-text>
@@ -161,8 +159,18 @@
     </template>
     <!-- 这里是action里面的图标   -->
     <template v-slot:item.actions="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-      <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
+      <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
+        <v-btn icon color="primary" class="elevation-5 ma-2" @click="editItem(item)">
+          <v-icon small v-bind="attrs" v-on="on" >mdi-pencil</v-icon>
+        </v-btn>
+      </template><span>修改信息</span>
+      </v-tooltip>
+      <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
+        <v-btn icon color="error" class="elevation-5 ma-1" @click="deleteItem(item)">
+          <v-icon small v-bind="attrs" v-on="on" >mdi-delete</v-icon>
+        </v-btn>
+      </template><span>删 除</span>
+      </v-tooltip>
     </template>
 
     <template v-slot:no-data>
@@ -186,6 +194,22 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-snackbar
+        top
+        v-model="resetbar"
+    >
+      确定要重置密码吗？
+      <template v-slot:action="{ attrs }">
+        <v-btn
+            color="blue"
+            text
+            v-bind="attrs"
+            @click="resetPassConfirm"
+        >
+          确定
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -195,7 +219,7 @@ import { required,maxLength,minLength,alphaNum,numeric} from 'vuelidate/lib/vali
 export default {
   data: () => ({
     /*    nowDate:new Date().toLocaleDateString(),*/
-    mess:"",bar:false,
+    mess:"",bar:false,resetbar:false,
     floor:['1','2','3','4','5','6','7','8'],
     reset:false,
     resetpass:'pass',
@@ -204,8 +228,6 @@ export default {
     modal: false,
     name: window.sessionStorage.getItem('name'),
     search:"",
-    sortBy:"poster_date",
-    sortDesc:false,
     dialog: false,
     dialogDelete: false,
     headers: [
@@ -298,7 +320,8 @@ export default {
           })
     },
 
-    resetPass(){
+    resetPassConfirm(){
+      this.resetbar = false
       var mess={'id':this.editedItem.cust_id , 'name':this.editedItem.cust_name}
       this.axios.post('/api/userCust/resetPass', JSON.stringify(mess))
           .then(res => {
@@ -324,10 +347,12 @@ export default {
     },
 
     deleteItemConfirm () {
-      this.desserts.splice(this.editedIndex, 1)
       var  mess = {'id':this.editedItem.cust_id}
-      this.axios.post('/api/userCust/DelCust', JSON.stringify(mess))
-      this.mess = "删除用户成功"
+      this.axios.post('/api/userCust/DelCust', JSON.stringify(mess)).then(res=>{
+        this.mess =res.data
+      },res=>{
+        console.log(res);
+      })
       this.bar = true
       this.closeDelete()
     },
@@ -357,8 +382,22 @@ export default {
         if (this.editedIndex > -1) {
         /*修改*/
         this.axios.post('/api/userCust/changeCustMess', JSON.stringify(this.editedItem))
-          this.mess = "修改成功"
-          this.bar = true
+          .then(res=>{
+            var mass = res.data
+            if(mass ==="该地址已有业主，请重新设置"||mass === "姓名重复，请重新设置"){
+              this.mess = mass
+              this.bar = true
+            }
+            else{
+              this.mess =mass
+              this.bar = true
+              this.initialize()
+              this.close()
+              this.$v.$reset()
+            }
+          },res=>{
+            console.log(res);
+          })
       } else {
         /*增加*/
         var mess = this.editedItem
@@ -366,17 +405,27 @@ export default {
         delete  mess.cust_id
         this.axios.post('/api/userCust/AddCust', JSON.stringify(mess))
             .then(res => {
-              this.resetpass = res.data;
+              var mass = res.data
+              if(mass ==="用户名重复请重新设置"||mass ==="该地址已有业主，请重新设置"){
+                this.mess = mass
+                this.bar = true
+              }
+              else{
+                this.resetpass = res.data;
+                this.mess = "添加成功"
+                this.bar = true
+                this.reset = true
+                this.initialize()
+                this.close()
+                this.$v.$reset()
+              }
+
             },res => {
               console.log(res);
             })
-          this.mess = "添加成功"
-          this.bar = true
-        this.reset = true
+
       }
-        this.initialize()
-        this.close()
-        this.$v.$reset()
+
       }
     },
   },

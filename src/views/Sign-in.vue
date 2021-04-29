@@ -120,14 +120,14 @@ export default {
     asd:function (){
       this.axios.post('/api/common/signin', JSON.stringify(this.signin)
       ).then(res => {//true
-        if(res.data["flag"]=="error"){
+        if(res.data["flag"]==="error"){
           this.mess = res.data["mess"];
           this.show = true;
         }
-        else if(res.data["flag"]=="success"){
-          if(res.data["mess"]=="admin")
+        else if(res.data["flag"]==="success"){
+          if(res.data["mess"]==="admin")
           {
-            if(this.signin.account=='root'){
+            if(this.signin.account==='root'){
               window.sessionStorage.setItem('identity','0');
             }
             else{
@@ -140,11 +140,11 @@ export default {
                 name: res.data["name"],
               }});
           }
-          else if(res.data["mess"]=="cust")
+          else if(res.data["mess"]==="cust")
           {
             window.sessionStorage.setItem('identity','2');
             window.sessionStorage.setItem('loginname', this.signin.account);
-            window.sessionStorage.setItem('name', res.data["realname"]);
+            window.sessionStorage.setItem('name', res.data["name"]);
             this.$router.push({ path:'/cust/',
               query:{
                 name: res.data["name"],

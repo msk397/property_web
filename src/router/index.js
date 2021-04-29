@@ -8,6 +8,9 @@ const routes = [
   {
     path: "/",
     component: () => import("../views/Sign-in"),
+    meta:{
+      title: '物业管理系统-登录'
+    }
   }, {
     path: "/user",
     component: () => import("../views/UserPage/user"),
@@ -15,32 +18,50 @@ const routes = [
       {
         path: "/user",
         name: "user-dashboard",
+        meta:{
+          title: '物业管理系统-管理员首页'
+        },
         component: () =>
             import("../views/UserPage/UserDashboard"),
       }, {
         path: "/user/charge",
         name: "user-charge",
+        meta:{
+          title: '物业管理系统-缴费管理'
+        },
         component: () =>
             import("../views/UserPage/charge"),
       }, {
         path: "/user/fix",
         name: "user-fix",
+        meta:{
+          title: '物业管理系统-报修管理'
+        },
         component: () =>
             import("../views/UserPage/fix"),
       }, {
         path: "/user/custmess",
         name: "user-custmess",
+        meta:{
+          title: '物业管理系统-业主信息'
+        },
         component: () =>
             import("../views/UserPage/custmess"),
       }, {
         path: "/user/poster",
         name: "user-poster",
+        meta:{
+          title: '物业管理系统-公告管理'
+        },
         component: () =>
             import("../views/UserPage/poster"),
       },
       {
-        path: "/user/mess",
+        path: "/user/adminmess",
         name: "user-mess",
+        meta:{
+          title: '物业管理系统-员工管理'
+        },
         component: () =>
             import("../views/UserPage/mess"),
       },
@@ -52,83 +73,15 @@ const routes = [
       {
         path: "/cust",
         name: "cust-dashboard",
+        meta:{
+          //
+          title: '物业管理系统-业主首页'
+        },
         component: () =>
             import("../views/CustPage/CustDashboard"),
-      }, {
-        path: "/cust/charge",
-        name: "cust-charge",
-        component: () =>
-            import("../views/CustPage/charge"),
-      }, {
-        path: "/cust/fix",
-        name: "cust-fix",
-        component: () =>
-            import("../views/CustPage/fix"),
-      },{
-        path: "/cust/poster",
-        name: "cust-poster",
-        component: () =>
-            import("../views/CustPage/poster"),
       },
     ]
   },
-
-/*  {
-    path: "/dashboard/pages",
-    component: () => import("../components/root/dashboard"),
-    children: [
-      {
-        path: "/dashboard/pages/",
-        name: "dashboard-pages-dashboards-dashboard",
-        component: () =>
-          import("../views/dashboard/pages/dashboards/Dashboard.vue"),
-      },
-      {
-        path: "/dashboard/pages/examples/profile",
-        name: "dashboard-pages-examples-profile",
-        component: () =>
-          import("../views/dashboard/pages/examples/Profile.vue"),
-      },
-      {
-        path: "/dashboard/pages/examples/sign-in",
-        name: "dashboard-pages-examples-sign-in",
-        component: () =>
-          import("../views/Sign-in"),
-      },
-    ],
-  },*/
-
- /* {
-    path: "/front/pages",
-    component: () => import("../components/root/front"),
-    children: [
-      {
-        path: "/front/pages/index",
-        name: "front-pages-index",
-        component: () => import("../views/front/pages/Index.vue"),
-      },
-      {
-        path: "/front/pages/index-2",
-        name: "front-pages-index-2",
-        component: () => import("../views/front/pages/Index-2.vue"),
-      },
-      {
-        path: "/front/pages/about",
-        name: "front-pages-about",
-        component: () => import("../views/front/pages/About.vue"),
-      },
-      {
-        path: "/front/pages/price",
-        name: "front-pages-price",
-        component: () => import("../views/front/pages/Price.vue"),
-      },
-      {
-        path: "/front/pages/contact",
-        name: "front-pages-contact",
-        component: () => import("../views/front/pages/Contact.vue"),
-      },
-    ],
-  },*/
 
 ];
 

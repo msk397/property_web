@@ -12,7 +12,7 @@
   >
     <!--  颜色  -->
     <template v-slot:item.fix_status="{item }">
-      <v-chip :color="getColor(item.fix_status)" dark>{{ item.fix_status}}</v-chip>
+      <v-chip :color="getColor(item.fix_status)" dark outlined>{{ item.fix_status}}</v-chip>
     </template>
 
     <template v-slot:top>
@@ -26,8 +26,7 @@
             single-line
             hide-details
         ></v-text-field>
-        <v-spacer></v-spacer>
-
+        <v-spacer/>
         <v-dialog v-model="dialog" max-width="520px">
           <v-card>
             <v-card-title>
@@ -79,7 +78,7 @@
                     ></v-text-field>
                   </v-col>
 
-                  <v-col cols="12" sm="6" md="10">
+                  <v-col cols="10" sm="10" md="10">
                     <v-textarea
                         outlined
                         v-model="editedItem.fix_log"
@@ -126,13 +125,18 @@
     </template>
     <!-- 这里是action里面的图标   -->
     <template v-slot:item.actions="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)">
-        mdi-pencil
-      </v-icon>
-
-      <v-icon small @click="deleteItem(item)">
-        mdi-delete
-      </v-icon>
+      <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
+        <v-btn icon color="primary" class="elevation-5 ma-2" @click="editItem(item)">
+          <v-icon small v-bind="attrs" v-on="on" >mdi-pencil</v-icon>
+        </v-btn>
+      </template><span>修改信息</span>
+      </v-tooltip>
+      <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
+        <v-btn icon color="error" class="elevation-5 ma-1" @click="deleteItem(item)">
+          <v-icon small v-bind="attrs" v-on="on" >mdi-delete</v-icon>
+        </v-btn>
+      </template><span>删 除</span>
+      </v-tooltip>
     </template>
 
     <template v-slot:no-data>
@@ -175,7 +179,7 @@ export default {
     mess:"",bar:false,
     modal: false,
     search:"",
-    sortBy:"charge_ddl",
+    sortBy:"fix_startime",
     sortDesc:false,
     dialog: false,
     dialogDelete: false,
@@ -220,7 +224,7 @@ export default {
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
 
     getColor (calories) {
-      if (calories === "已处理") return 'green'
+      if (calories === "已处理") return 'primary'
       else return 'red'
     },
 

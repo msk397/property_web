@@ -15,6 +15,7 @@
       <v-chip
           :color="getColor(item.status)"
           dark
+          outlined
       >
         {{ item.status}}
       </v-chip>
@@ -35,24 +36,20 @@
             single-line
             hide-details
         ></v-text-field>
-        <v-spacer></v-spacer>
+        <v-spacer/>
+        <v-btn
+            color="primary"
+            class="mb-2 elevation-5"
+            @click="dialog = true"
+        >
+          添加公告
+        </v-btn>
         <v-dialog
             v-model="dialog"
             fullscreen
             hide-overlay
             transition="dialog-bottom-transition"
         >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-                color="primary"
-                dark
-                class="mb-2"
-                v-bind="attrs"
-                v-on="on"
-            >
-              添加公告
-            </v-btn>
-          </template>
           <v-card>
             <v-card-title>
               <span class="headline">{{ formTitle }}</span>
@@ -296,13 +293,13 @@
                     </v-col>
                     </v-row>
 
-                  <v-col cols="12" sm="10" md="10">
+                  <v-col cols="12" sm="12" md="12">
                     <v-textarea
-                        outlined
                         v-model="editedItem.poster_log"
                         label="公告详情*"
                         counter="500"
                         required
+                        outlined
                         auto-grow
                         clearable
                         rows="9"
@@ -351,19 +348,18 @@
     </template>
     <!-- 这里是action里面的图标   -->
     <template v-slot:item.actions="{ item }">
-      <v-icon
-          small
-          class="mr-2"
-          @click="editItem(item)"
-      >
-        mdi-pencil
-      </v-icon>
-      <v-icon
-          small
-          @click="deleteItem(item)"
-      >
-        mdi-delete
-      </v-icon>
+      <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
+        <v-btn icon color="primary" class="elevation-5 ma-2" @click="editItem(item)">
+        <v-icon small v-bind="attrs" v-on="on" >mdi-pencil</v-icon>
+        </v-btn>
+      </template><span>修改信息</span>
+      </v-tooltip>
+      <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
+        <v-btn icon color="error" class="elevation-5 ma-1" @click="deleteItem(item)">
+        <v-icon small v-bind="attrs" v-on="on" >mdi-delete</v-icon>
+        </v-btn>
+      </template><span>删 除</span>
+      </v-tooltip>
     </template>
 
     <template v-slot:no-data>
@@ -429,7 +425,7 @@ export default {
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
 
     getColor (calories) {
-      if (calories === "已发布") return 'green'
+      if (calories === "已发布") return 'primary'
       else return 'red'
     },
 
@@ -444,7 +440,9 @@ export default {
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
     },
+
     editItem (item) {
+
       this.editedIndex = this.desserts.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true

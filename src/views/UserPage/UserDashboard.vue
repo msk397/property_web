@@ -3,7 +3,7 @@
     <v-sheet color="transparent">
       <v-row>
         <v-col cols="12" md="6" lg="4" v-for="(item, i) in stats" :key="i">
-          <v-card class="py-6 px-10" outlined>
+          <v-card class="py-6 px-10 elevation-5" outlined>
             <div>
               <div class="d-flex justify-space-between align-center">
                 <div>
@@ -21,8 +21,10 @@
                       v-if="i===1||i===2"
                       :rotate="270"
                       :size="50"
+                      :width="10"
                       :value="item.number"
                       :color="item.color"
+
                   >
                   </v-progress-circular>
                 </div>
@@ -44,7 +46,7 @@
 
       <v-row>
         <v-col cols="12" lg="6" xl="7">
-          <v-card class="pa-10" outlined>
+          <v-card class="pa-10 elevation-5" outlined>
             <div class="d-flex align-center justify-space-between">
               <div>
                 <div class="text-h6">
@@ -60,14 +62,14 @@
                   class="elevation-24"
               >
                 <template v-slot:item.actions="{ item }">
-                  <v-btn color="error" @click="moneyalert(item)">提 醒</v-btn>
+                  <v-btn color="error" class="elevation-5" @click="moneyalert(item)">提 醒</v-btn>
                 </template>
               </v-data-table>
             </template>
           </v-card>
           <v-col></v-col>
 
-          <v-card outlined class="pa-10">
+          <v-card outlined class="pa-10 elevation-5">
             <div class="d-flex align-center justify-space-between">
               <div class="text-h6">
                 待处理维修记录
@@ -82,9 +84,6 @@
                   :items-per-page="5"
                   class="elevation-24"
               >
-<!--                <template v-slot:item.actions="{ item }">
-                  <v-btn color="primary">处 理</v-btn>
-                </template>-->
               </v-data-table>
             </template>
 
@@ -92,7 +91,7 @@
         </v-col>
 
         <v-col cols="12" lg="6" xl="5">
-          <v-card class="pa-10 fill-height" outlined>
+          <v-card class="pa-10 fill-height elevation-5" outlined>
             <div class="d-flex align-center justify-space-between">
               <div class="text-h6">
                 公 告
@@ -103,7 +102,6 @@
                 height="400"
                 hide-delimiter-background
                 show-arrows-on-hover
-
             >
               <v-carousel-item v-for="item in poster" :key="item.poster_id">
                         <v-card
@@ -121,7 +119,7 @@
                                 <v-img
                                     class="elevation-6"
                                     alt=""
-                                    src="https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Prescription02&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"
+                                    src="../../static/head.svg"
                                 ></v-img>
                               </v-list-item-avatar>
                               <v-list-item-content>
@@ -152,7 +150,7 @@
                     loading=false
                 >
                   <template v-slot:item.actions="{ item }">
-                    <v-btn color="primary" @click="post(item)">立即发布</v-btn>
+                    <v-btn color="primary" class="elevation-5" @click="post(item)">立即发布</v-btn>
                   </template>
                 </v-data-table>
               </template>
