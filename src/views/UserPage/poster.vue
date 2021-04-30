@@ -42,7 +42,7 @@
             class="mb-2 elevation-5"
             @click="dialog = true"
         >
-          添加公告
+          {{ addTitle }}
         </v-btn>
         <v-dialog
             v-model="dialog"
@@ -404,7 +404,8 @@ export default {
   },
 
   computed: {
-    formTitle () {return this.editedIndex === -1 ? '添加通知' : '编辑通知'},
+    formTitle () {return this.editedIndex === -1 ? '提交公告申请' : '编辑公告'},
+    addTitle () {return this.id === '0' ? '添加公告' : '申请公告'},
     titleErrors () {
       const errors = []
       if (!this.$v.editedItem.poster_title.$dirty) return errors
@@ -500,7 +501,7 @@ export default {
         } else {
           /*增加*/
             const  mess = this.editedItem
-            mess.admin_name = this.name
+            mess.admin_loginname = this.login
             this.axios.post('/api/userPoster/AddPoster', JSON.stringify(mess)).then(res => {
               this.mess = res.data["mess"]
               this.bar = true
@@ -518,14 +519,16 @@ export default {
   },
 
   data: () => ({
+    id:window.sessionStorage.getItem("identity"),
     mess:"",
     timeChoose1:false,
     modal1: false,
     timeChoose:false,
     modal: false,
     name: window.sessionStorage.getItem('name'),
+    login: window.sessionStorage.getItem('loginname'),
     search:"",
-    sortBy:"poster_date",
+    sortBy:"time",
     sortDesc:false,
     dialog: false,
     dialogDelete: false,

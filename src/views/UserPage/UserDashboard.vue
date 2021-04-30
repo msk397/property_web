@@ -59,6 +59,7 @@
                   :headers="headers"
                   :items="desserts"
                   :items-per-page="5"
+                  multi-sort
                   class="elevation-24"
               >
                 <template v-slot:item.actions="{ item }">
@@ -82,6 +83,7 @@
                   :headers="fixheader"
                   :items="fix"
                   :items-per-page="5"
+                  multi-sort
                   class="elevation-24"
               >
               </v-data-table>
@@ -102,14 +104,15 @@
                 height="400"
                 hide-delimiter-background
                 show-arrows-on-hover
+                v-if="poster.length!==0"
             >
-              <v-carousel-item v-for="item in poster" :key="item.poster_id">
+              <v-carousel-item v-for="item in poster" :key="item.poster_id" >
                         <v-card
                             class="mx-auto"
                             color="#26c6da"
                             height="100%">
                           <v-card-title>
-                            <v-icon large left>mdi-twitter</v-icon>
+                            <v-icon large left> {{twitter}}</v-icon>
                             <span class="title font-weight-light">{{item.poster_title}}</span>
                           </v-card-title>
                             <v-card-text >{{item.poster_log}}</v-card-text>
@@ -134,27 +137,73 @@
               </v-carousel-item>
             </v-carousel>
 
+            <v-carousel
+                height="400"
+                hide-delimiters
+                hide-delimiter-background
+                show-arrows-on-hover
+                v-if="poster.length===0">
+              <v-carousel-item>
+                <v-sheet
+                    color="#26c6da"
+                    height="100%"
+                    tile
+                >
+                  <v-row
+                      class="fill-height"
+                      align="center"
+                      justify="center"
+                  >
+                    <div class="display-3">
+                   暂无公告
+                    </div>
+                  </v-row>
+                </v-sheet>
+              </v-carousel-item>
+            </v-carousel>
 
-            <v-col >
+            <v-col v-if="id==='1'">
               <div class="text-h6">
                 未发布公告
               </div>
-
               <template>
                 <v-data-table
                     :headers="posterheader"
                     :items="unposter"
                     :items-per-page="5"
                     class="elevation-24"
+                    multi-sort
                     loading-text="无未发布的公告"
                     loading=false
                 >
                   <template v-slot:item.actions="{ item }">
-                    <v-btn color="primary" class="elevation-5" @click="post(item)">立即发布</v-btn>
+                    <v-btn color="primary" class="elevation-5" @click="post(item)" >立即发布</v-btn>
                   </template>
                 </v-data-table>
               </template>
             </v-col>
+
+            <v-col v-else>
+              <div class="text-h6">
+                待签发公告
+              </div>
+              <template>
+                <v-data-table
+                    :headers="posterheader"
+                    :items="unsign"
+                    :items-per-page="5"
+                    class="elevation-24"
+                    multi-sort
+                    loading-text="无待签发的公告"
+                    loading=false
+                >
+                  <template v-slot:item.actions="{ item }">
+                    <v-btn color="primary" class="elevation-5" @click="postsign(item)" >签 字</v-btn>
+                  </template>
+                </v-data-table>
+              </template>
+            </v-col>
+
           </v-card>
         </v-col>
       </v-row>
@@ -181,9 +230,10 @@
 </template>
 
 <script>
-import { mdiAccountGroup } from '@mdi/js'
+import { mdiAccountGroup,mdiTwitter } from '@mdi/js'
 export default {
   data: () => ({
+    twitter:mdiTwitter,
     bar1:false,
     headers: [
       {text: '姓 名', align: 'start', value: 'name'},
@@ -196,7 +246,6 @@ export default {
       {text: '姓 名', align: 'start', value: 'name'},
       { text: '地 址', value: 'addr',sortable: false},
       { text: '详 情', value: 'fix_log',sortable: false},
-      // { text: 'Actions', value: 'actions', sortable: false },
     ],
     posterheader: [
       {text: '标 题', align: 'start', value: 'poster_title',width:100, sortable: false,},
@@ -216,65 +265,17 @@ export default {
         color: "accent",
       },
     ],
-    optionsLine: {
-      theme: {
-        mode: "light",
-        palette: "palette2",
-      },
-
-      stroke: {
-        curve: "smooth",
-      },
-      chart: {
-        id: "vuechart-line",
-        dropShadow: {
-          enabled: true,
-          top: 3,
-          left: 3,
-          blur: 10,
-          opacity: 0.5,
-        },
-      },
-      xaxis: {
-        categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-      },
-    },
-    optionsBar: {
-      theme: {
-        mode: "light",
-        palette: "palette7",
-      },
-
-      stroke: {
-        curve: "smooth",
-      },
-      chart: {
-        id: "vuechart-bar",
-      },
-      xaxis: {
-        categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-      },
-    },
-    series: [
-      {
-        name: "series-1",
-        data: [30, 40, 45, 50, 49, 60, 70, 91],
-      },
-    ],
+    id:window.sessionStorage.getItem("identity"),
     desserts: [],
     fix:[],
     mess:"",
-    length: 3,
     window: 0,
     poster:[],
     unposter:[],
+    unsign:[],
   }),
-  mounted() {
-    this.chart = true;
-  },
-  created () {
-    this.initialize()
-  },
+  mounted() {this.chart = true;},
+  created () {this.initialize()},
   methods: {
     initialize() {
       this.axios.get('/api/user/poster')
@@ -289,9 +290,9 @@ export default {
           }, res => {
             console.log(res);
           })
-      this.axios.get('/api/user/postercount')
+      this.axios.get('/api/user/unsign')
           .then(res => {
-            this.length = res.data
+            this.unsign=res.data
           }, res => {
             console.log(res);
           })
@@ -333,6 +334,7 @@ export default {
           .then(res => {
             this.mess = res.data["mess"]
             this.bar1 = true
+            this.initialize()
           },res => {
             console.log(res);
           })
@@ -343,6 +345,18 @@ export default {
           .then(res => {
             this.mess = res.data["mess"]
             this.bar1 = true
+            this.initialize()
+          },res => {
+            console.log(res);
+          })
+    },
+    postsign(item){
+      var mess = {"id":item.poster_id}
+      this.axios.post('/api/user/postsign', JSON.stringify(mess))
+          .then(res => {
+            this.mess = res.data["mess"]
+            this.bar1 = true
+            this.initialize()
           },res => {
             console.log(res);
           })

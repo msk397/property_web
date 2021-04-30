@@ -78,7 +78,7 @@
               offset-x="15"
               offset-y="15"
           >
-            <v-btn icon v-bind="attrs" v-on="on">
+            <v-btn icon v-bind="attrs" v-on="on" v-if="id==='1'">
               <v-icon>mdi-bell-outline</v-icon>
             </v-btn>
           </v-badge>

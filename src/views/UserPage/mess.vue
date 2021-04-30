@@ -3,8 +3,6 @@
     <v-data-table
         :headers="headers"
         :items="desserts"
-        :sort-by.sync="sortBy"
-        :sort-desc.sync="sortDesc"
         loading="loadin"
         multi-sort
         :search="search"
@@ -267,8 +265,6 @@ export default {
     modal: false,
     name: window.sessionStorage.getItem('name'),
     search:"",
-    sortBy:"poster_date",
-    sortDesc:false,
     dialog: false,
     dialoglog:false,
     dialogDelete: false,

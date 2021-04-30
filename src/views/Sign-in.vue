@@ -56,17 +56,10 @@
                         v-model="signin.passwd"
                     ></v-text-field>
 
-                    <div class="d-flex align-center justify-space-between mt-4">
-                      <v-checkbox label="Remember me"></v-checkbox>
-
-                      <div class="primary--text text-subtitle-1">
-                        Lost password?
-                      </div>
-                    </div>
 
                     <div class="mt-6">
                       <v-btn block class="text-capitalize" large color="primary" @click="asd"
-                      >sign in
+                      >登 录
                       </v-btn
                       >
                     </div>

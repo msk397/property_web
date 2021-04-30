@@ -19,7 +19,7 @@
                   class="elevation-24"
               >
                 <template v-slot:item.actions="{ item }">
-                  <v-btn color="primary" @click="moneyalert(item)">缴 费</v-btn>
+                  <v-btn color="primary" @click="moneyalert(item)"  class="elevation-5">缴 费</v-btn>
                 </template>
               </v-data-table>
             </template>
@@ -40,7 +40,7 @@
                   <v-btn
                       color="primary"
                       dark
-                      class="mb-2"
+                      class="mb-2  elevation-5"
                       v-bind="attrs"
                       v-on="on"
                   >
@@ -80,6 +80,7 @@
                         color="blue darken-1"
                         text
                         @click="close"
+
                     >
                       Cancel
                     </v-btn>
@@ -103,7 +104,7 @@
                   class="elevation-24"
               >
                 <template v-slot:item.fix_status="{item }">
-                  <v-chip :color="getColor(item.fix_status)" dark>{{ item.fix_status}}</v-chip>
+                  <v-chip :color="getColor(item.fix_status)" dark  class="elevation-5" outlined >{{ item.fix_status}}</v-chip>
                 </template>
               </v-data-table>
 
