@@ -5,11 +5,13 @@
       :items="desserts"
       :sort-by.sync="sortBy"
       :sort-desc.sync="sortDesc"
-      loading="loadin"
+      :loading="load"
       multi-sort
       :search="search"
       loading-text="Waiting"
   >
+    <template v-slot:no-data>暂无公告记录</template>
+    <template v-slot:no-results>无匹配记录</template>
     <!--  颜色  -->
     <template v-slot:item.status="{item }">
       <v-chip
@@ -362,14 +364,6 @@
       </v-tooltip>
     </template>
 
-    <template v-slot:no-data>
-      <v-btn
-          color="primary"
-          @click="initialize"
-      >
-        Reset
-      </v-btn>
-    </template>
   </v-data-table>
     <v-snackbar
         top
@@ -431,6 +425,7 @@ export default {
     },
 
     initialize () {
+      this.load = true
       this.axios.get('/api/userPoster/queryPoster')
           .then(res => {
             this.desserts=res.data;
@@ -440,10 +435,10 @@ export default {
           })
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
+      this.load = false
     },
 
     editItem (item) {
-
       this.editedIndex = this.desserts.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
@@ -519,6 +514,7 @@ export default {
   },
 
   data: () => ({
+    load:true,
     id:window.sessionStorage.getItem("identity"),
     mess:"",
     timeChoose1:false,

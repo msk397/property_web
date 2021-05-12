@@ -5,11 +5,13 @@
       :items="desserts"
       :sort-by.sync="sortBy"
       :sort-desc.sync="sortDesc"
-      loading="loadin"
+      :loading="load"
       multi-sort
       :search="search"
       loading-text="Waiting"
   >
+    <template v-slot:no-data>暂无维修记录</template>
+    <template v-slot:no-results>无匹配记录</template>
     <!--  颜色  -->
     <template v-slot:item.fix_status="{item }">
       <v-chip :color="getColor(item.fix_status)" dark outlined>{{ item.fix_status}}</v-chip>
@@ -139,11 +141,6 @@
       </v-tooltip>
     </template>
 
-    <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize">
-        Reset
-      </v-btn>
-    </template>
   </v-data-table>
     <v-snackbar
         top
@@ -176,6 +173,7 @@ export default {
     }
   },
   data: () => ({
+    load:true,
     mess:"",bar:false,
     modal: false,
     search:"",
@@ -229,6 +227,7 @@ export default {
     },
 
     initialize () {
+      this.load = true
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
       this.axios.get('/api/userFix/queryUserFix')
@@ -238,6 +237,7 @@ export default {
           },res => {
             console.log(res);
           })
+      this.load = false
     },
 
     switchfix(){

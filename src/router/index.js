@@ -11,7 +11,8 @@ const routes = [
     meta:{
       title: '物业管理系统-登录'
     }
-  }, {
+  },
+  {
     path: "/user",
     component: () => import("../views/UserPage/user"),
     children: [

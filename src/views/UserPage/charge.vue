@@ -5,10 +5,9 @@
       :items="desserts"
       :sort-by.sync="sortBy"
       :sort-desc.sync="sortDesc"
-      loading="loadin"
+      :loading="load"
       multi-sort
       :search="search"
-
   >
 <!--  颜色  -->
     <template v-slot:item.charge_status="{item }">
@@ -20,7 +19,12 @@
         {{ item.charge_status}}
       </v-chip>
     </template>
-
+    <template v-slot:no-data>
+      暂无缴费记录
+    </template>
+    <template v-slot:no-results>
+      无匹配记录
+    </template>
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>缴费详情</v-toolbar-title>
@@ -203,14 +207,7 @@
       </v-tooltip>
     </template>
 
-    <template v-slot:no-data>
-      <v-btn
-          color="primary"
-          @click="initialize"
-      >
-        Reset
-      </v-btn>
-    </template>
+
   </v-data-table>
     <v-snackbar
         top
@@ -244,6 +241,7 @@ export default {
     }
   },
   data: () => ({
+    load:true,
     mess:"",bar:false,
     modal: false, search:"", sortBy:"charge_ddl", sortDesc:false, dialog: false, dialogDelete: false,
     headers: [
@@ -301,6 +299,7 @@ export default {
     },
 
     initialize () {
+      this.load=true
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
       this.axios.get('/api/userCharge/queryUserCharge')
@@ -316,6 +315,7 @@ export default {
           },res => {
             console.log(res);
           })
+      this.load = false
     },
     editItem (item) {
       this.editedIndex = this.desserts.indexOf(item)

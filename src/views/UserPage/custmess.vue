@@ -3,12 +3,13 @@
   <v-data-table
       :headers="headers"
       :items="desserts"
-      loading="loadin"
+      :loading="load"
       multi-sort
       :search="search"
       loading-text="Waiting"
   >
-
+    <template v-slot:no-data>暂无业主记录</template>
+    <template v-slot:no-results>无匹配记录</template>
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>业主信息管理</v-toolbar-title>
@@ -30,7 +31,6 @@
             <v-card-text>
               <v-container>
                 <v-row>
-
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
                         v-model="editedItem.cust_loginname"
@@ -172,10 +172,6 @@
       </template><span>删 除</span>
       </v-tooltip>
     </template>
-
-    <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize">Reset</v-btn>
-    </template>
   </v-data-table>
     <v-snackbar
         top
@@ -219,6 +215,7 @@ import { required,maxLength,minLength,alphaNum,numeric} from 'vuelidate/lib/vali
 export default {
   data: () => ({
     /*    nowDate:new Date().toLocaleDateString(),*/
+    load:true,
     mess:"",bar:false,resetbar:false,
     floor:['1','2','3','4','5','6','7','8'],
     reset:false,
@@ -309,6 +306,7 @@ export default {
       this.resetpass='pass'
     },
     initialize () {
+      this.load = true
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
       this.axios.get('/api/userCust/queryCust')
@@ -318,6 +316,7 @@ export default {
           },res => {
             console.log(res);
           })
+      this.load = false
     },
 
     resetPassConfirm(){

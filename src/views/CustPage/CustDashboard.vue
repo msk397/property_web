@@ -17,9 +17,14 @@
                   :items="desserts"
                   :items-per-page="5"
                   class="elevation-24"
+                  :loading = "load"
+                  loading-text="加载中..."
               >
                 <template v-slot:item.actions="{ item }">
-                  <v-btn color="primary" @click="moneyalert(item)"  class="elevation-5">缴 费</v-btn>
+                  <v-btn color="primary" @click="paymoney(item)"  class="elevation-5">缴 费</v-btn>
+                </template>
+                <template v-slot:no-data>
+                  暂无待缴费信息
                 </template>
               </v-data-table>
             </template>
@@ -31,7 +36,7 @@
               <div class="text-h6">
                 已提交的维修记录
               </div>
-              <v-spacer></v-spacer>
+              <v-spacer/>
               <v-dialog
                   v-model="dialog"
                   max-width="300px"
@@ -68,14 +73,14 @@
                               @input="$v.savelog.$touch()"
                               @blur="$v.savelog.$touch()"
                           ></v-textarea>
-                        <v-spacer></v-spacer>
+                        <v-spacer/>
                       </v-row>
                       <small>带*为必填项</small>
                     </v-container>
                   </v-card-text>
 
                   <v-card-actions>
-                    <v-spacer></v-spacer>
+                    <v-spacer/>
                     <v-btn
                         color="blue darken-1"
                         text
@@ -102,9 +107,14 @@
                   :items="fix"
                   :items-per-page="5"
                   class="elevation-24"
+                  :loading = "load"
+                  loading-text="Loading... Please wait"
               >
                 <template v-slot:item.fix_status="{item }">
                   <v-chip :color="getColor(item.fix_status)" dark  class="elevation-5" outlined >{{ item.fix_status}}</v-chip>
+                </template>
+                <template v-slot:no-data>
+                  暂无报修记录
                 </template>
               </v-data-table>
 
@@ -120,10 +130,15 @@
                 公 告
               </div>
             </div>
+            <v-hover
+                v-slot="{ hover }"
+                close-delay="200"
+            >
             <v-carousel
-                cycle
+                :cycle="hover? false : true"
                 hide-delimiter-background
                 show-arrows-on-hover
+                v-if="poster.length!==0"
             >
               <v-carousel-item v-for="item in poster" :key="item.poster_id">
                 <v-card
@@ -155,6 +170,31 @@
                 </v-card>
               </v-carousel-item>
             </v-carousel>
+
+            <v-carousel
+                hide-delimiters
+                hide-delimiter-background
+                show-arrows-on-hover
+                v-else>
+              <v-carousel-item>
+                <v-sheet
+                    color="#26c6da"
+                    height="100%"
+                    tile
+                >
+                  <v-row
+                      class="fill-height"
+                      align="center"
+                      justify="center"
+                  >
+                    <div class="display-3">
+                      暂无公告
+                    </div>
+                  </v-row>
+                </v-sheet>
+              </v-carousel-item>
+            </v-carousel>
+            </v-hover>
           </v-card>
         </v-col>
       </v-row>
@@ -189,6 +229,7 @@ export default {
     savelog:{required,maxLength:maxLength(50)},
   },
   data: () => ({
+    load:true,
     bar1:false,dialog:false,
     headers: [
       {text: '姓 名', align: 'start', value: 'name'},
@@ -234,6 +275,7 @@ export default {
     },
 
     initialize() {
+      this.load = true
       var mess = {"login":this.login}
       this.axios.get('/api/user/poster')
           .then(res => {
@@ -253,11 +295,22 @@ export default {
           }, res => {
             console.log(res);
           })
+      this.load = false
     },
     close () {
       this.dialog = false
       this.savelog=""
       this.$v.savelog.$reset()
+    },
+    paymoney(item){
+      this.axios.post('/api/cust/paymoney', JSON.stringify(item))
+          .then(res => {
+            this.mess = res.data
+            this.bar1 = true
+            this.initialize()
+          },res => {
+            console.log(res);
+          })
     },
     save () {
       if(this.$v.savelog.$invalid||this.$v.savelog.$error){

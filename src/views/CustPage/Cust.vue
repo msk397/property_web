@@ -6,7 +6,76 @@
       </v-list-item-title>
       <v-spacer />
 
-        <v-menu
+      <v-menu
+          open-on-hover
+          offset-y
+          :value="hover"
+          min-width="300"
+      >
+        <template v-slot:activator="{ on, attrs }">
+            <v-btn icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-message-text</v-icon>
+            </v-btn>
+        </template>
+
+        <v-list two-line>
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon color="indigo">
+                mdi-phone
+              </v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>17855534312</v-list-item-title>
+              <v-list-item-subtitle>手 机</v-list-item-subtitle>
+            </v-list-item-content>
+
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-action></v-list-item-action>
+
+            <v-list-item-content>
+              <v-list-item-title>(0533) 555-6789</v-list-item-title>
+              <v-list-item-subtitle>电 话</v-list-item-subtitle>
+            </v-list-item-content>
+
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon color="indigo">
+                mdi-email
+              </v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>aliconnors@example.com</v-list-item-title>
+              <v-list-item-subtitle>Personal</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon color="indigo">
+                mdi-map-marker
+              </v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>1400 Main Street</v-list-item-title>
+              <v-list-item-subtitle>Orlando, FL 79938</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+
+      <v-menu
             open-on-hover
             offset-y
             :value="hover"
@@ -36,7 +105,7 @@
               </v-list-item-content>
               <v-spacer/>
               <v-icon v-if="item.log_status===0">{{unreadmailicon}}</v-icon>
-              <v-icon v-if="item.log_status===1">{{readmailicon}}</v-icon>
+              <v-icon v-else>{{readmailicon}}</v-icon>
             </v-list-item>
           </v-list>
         </v-menu>

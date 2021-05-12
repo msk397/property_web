@@ -3,12 +3,17 @@
     <v-data-table
         :headers="headers"
         :items="desserts"
-        loading="loadin"
+        :loading="load"
         multi-sort
         :search="search"
         loading-text="Waiting"
     >
-
+      <template v-slot:no-data>
+        暂无员工记录
+      </template>
+      <template v-slot:no-results>
+        无匹配记录
+      </template>
       <template v-slot:top>
         <v-toolbar flat>
           <v-toolbar-title>员工管理</v-toolbar-title>
@@ -131,9 +136,6 @@
           </v-tooltip>
       </template>
 
-      <template v-slot:no-data>
-        <v-btn color="primary" @click="initialize">Reset</v-btn>
-      </template>
     </v-data-table>
 
     <v-dialog v-model="dialoglog" max-width="400px">
@@ -257,6 +259,7 @@ import { required,maxLength,minLength,alphaNum,numeric} from 'vuelidate/lib/vali
 import { mdiSend } from '@mdi/js'
 export default {
   data: () => ({
+    load:true,
     mdiSend:mdiSend,
     mess:"",bar:false,resetbar:false,
     reset:false,
@@ -355,6 +358,7 @@ export default {
       this.resetpass='pass'
     },
     initialize () {
+      this.load = true
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
       this.axios.get('/api/user/queryadmin')
@@ -364,6 +368,7 @@ export default {
           },res => {
             console.log(res);
           })
+      this.load = false
     },
 
     resetPassConfirm(){
