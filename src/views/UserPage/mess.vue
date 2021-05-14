@@ -157,19 +157,19 @@
                 <v-spacer/>
                 <v-col cols="6" sm="6" md="6">
                   <v-text-field
-                      v-model="editedItem.title"
+                      v-model="title"
                       label="标题*"
                       required
                       counter="20"
                       :error-messages="titleErrors"
-                      @input="$v.editedItem.title.$touch()"
-                      @blur="$v.editedItem.title.$touch()"
+                      @input="$v.title.$touch()"
+                      @blur="$v.title.$touch()"
                   ></v-text-field>
                 </v-col>
               </v-row>
             <v-col cols="12" sm="12" md="12">
               <v-textarea
-                  v-model="editedItem.log_log"
+                  v-model="log_log"
                   label="通知详情*"
                   counter="100"
                   required
@@ -179,8 +179,8 @@
                   rows="3"
                   clear-icon="mdi-close-circle"
                   :error-messages="logErrors"
-                  @input="$v.editedItem.log_log.$touch()"
-                  @blur="$v.editedItem.log_log.$touch()"
+                  @input="$v.log_log.$touch()"
+                  @blur="$v.log_log.$touch()"
               ></v-textarea>
             </v-col>
             <small>带*为必填项</small>
@@ -259,6 +259,7 @@ import { required,maxLength,minLength,alphaNum,numeric} from 'vuelidate/lib/vali
 import { mdiSend } from '@mdi/js'
 export default {
   data: () => ({
+    url: process.env.VUE_APP_API,
     load:true,
     mdiSend:mdiSend,
     mess:"",bar:false,resetbar:false,
@@ -280,8 +281,10 @@ export default {
     ],
     desserts: [],
     editedIndex: -1,
-    editedItem: {admin_addr:'', admin_loginname:'', admin_realname:'', admin_phone:'',log_log:'',title:''},
-    defaultItem: {admin_addr:'', admin_loginname:'', admin_realname:'', admin_phone:'',log_log:'',title:''},
+    log_log:null,
+    title:null,
+    editedItem: {admin_addr:'', admin_loginname:'', admin_realname:'', admin_phone:''},
+    defaultItem: {admin_addr:'', admin_loginname:'', admin_realname:'', admin_phone:''},
   }),
   mixins: [validationMixin],
   validations: {
@@ -289,10 +292,10 @@ export default {
       admin_loginname:{required,maxLength:maxLength(20),alphaNum},
       admin_realname:{required,maxLength:maxLength(10)},
       admin_addr:{required},
-      log_log:{required,maxLength:maxLength(100)},
-      title:{required,maxLength:maxLength(20)},
       admin_phone:{required,minLength:minLength(11),maxLength:maxLength(11),numeric},
-    }
+    },
+    title:{required,maxLength:maxLength(20)},
+    log_log:{required,maxLength:maxLength(100)},
   },
   computed: {
     loginErrors () {
@@ -327,16 +330,16 @@ export default {
     },
     logErrors () {
       const errors = []
-      if (!this.$v.editedItem.log_log.$dirty) return errors
-      !this.$v.editedItem.log_log.maxLength && errors.push('通知不可超过100个字符')
-      !this.$v.editedItem.log_log.required && errors.push('通知不可为空')
+      if (!this.$v.log_log.$dirty) return errors
+      !this.$v.log_log.maxLength && errors.push('通知不可超过100个字符')
+      !this.$v.log_log.required && errors.push('通知不可为空')
       return errors
     },
     titleErrors () {
       const errors = []
-      if (!this.$v.editedItem.title.$dirty) return errors
-      !this.$v.editedItem.title.maxLength && errors.push('标题不可超过20个字符')
-      !this.$v.editedItem.title.required && errors.push('标题不可为空')
+      if (!this.$v.title.$dirty) return errors
+      !this.$v.title.maxLength && errors.push('标题不可超过20个字符')
+      !this.$v.title.required && errors.push('标题不可为空')
       return errors
     },
     formTitle () {return this.editedIndex === -1 ? '添加员工信息' : '编辑员工信息'},
@@ -361,7 +364,7 @@ export default {
       this.load = true
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
-      this.axios.get('/api/user/queryadmin')
+      this.axios.get(this.url+'user/queryadmin')
           .then(res => {
             this.desserts=res.data;
             this.loadin=!this.loadin;
@@ -374,7 +377,7 @@ export default {
     resetPassConfirm(){
       this.resetbar = false
       var mess={'admin_id':this.editedItem.admin_id,'admin_realname':this.editedItem.admin_realname}
-      this.axios.post('/api/user/resetPass', JSON.stringify(mess))
+      this.axios.post(this.url+'user/resetPass', JSON.stringify(mess))
           .then(res => {
             this.resetpass = res.data;
           },res => {
@@ -406,7 +409,7 @@ export default {
     deleteItemConfirm () {
       this.desserts.splice(this.editedIndex, 1)
       var  mess = {'login':this.editedItem.admin_loginname}
-      this.axios.post('/api/user/DelAdmin', JSON.stringify(mess)).then(res=>{
+      this.axios.post(this.url+'user/DelAdmin', JSON.stringify(mess)).then(res=>{
         this.mess = res.data
       },res=>{
         this.mess = res
@@ -439,7 +442,7 @@ export default {
       })
     },
     savelog(){
-      if(this.$v.$invalid||this.$v.$error){
+      if(this.$v.log_log.$invalid||this.$v.log_log.$error||this.$v.title.$invalid||this.$v.title.$error){
         this.$v.$touch()
       }
       else{
@@ -447,7 +450,9 @@ export default {
         delete mess.admin_addr
         delete mess.admin_phone
         delete mess.admin_loginname
-        this.axios.post('/api/user/addlog', JSON.stringify(mess))
+        mess['log_log'] = this.log_log
+        mess['title'] = this.title
+        this.axios.post(this.url+'user/addlog', JSON.stringify(mess))
             .then(res=>{
               this.mess =res.data+this.editedItem.admin_realname+"管理员"
               this.bar = true
@@ -462,13 +467,16 @@ export default {
 
     /*缴费信息保存*/
     save () {
-      if(this.$v.$invalid||this.$v.$error){
+      if(this.$v.editedItem.admin_realname.$invalid||this.$v.editedItem.admin_realname.$error||
+          this.$v.editedItem.admin_addr.$invalid||this.$v.editedItem.admin_addr.$error||
+          this.$v.editedItem.admin_phone.$invalid||this.$v.editedItem.admin_phone.$error
+      ){
         this.$v.$touch()
       }
       else{
         if (this.editedIndex > -1) {
           /*修改*/
-          this.axios.post('/api/user/changeAdminMess', JSON.stringify(this.editedItem))
+          this.axios.post(this.url+'user/changeAdminMess', JSON.stringify(this.editedItem))
               .then(res=>{
                   this.mess =res.data
                   this.bar = true
@@ -484,7 +492,7 @@ export default {
           var mess = this.editedItem
           delete  mess.cust_addr
           delete  mess.cust_id
-          this.axios.post('/api/user/AddAdmin', JSON.stringify(mess))
+          this.axios.post(this.url+'user/AddAdmin', JSON.stringify(mess))
               .then(res => {
                 var mass = res.data
                 if(mass ==="用户名重复请重新设置"){

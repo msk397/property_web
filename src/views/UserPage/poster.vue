@@ -426,7 +426,7 @@ export default {
 
     initialize () {
       this.load = true
-      this.axios.get('/api/userPoster/queryPoster')
+      this.axios.get(this.url+'userPoster/queryPoster')
           .then(res => {
             this.desserts=res.data;
             this.loadin=!this.loadin;
@@ -453,7 +453,7 @@ export default {
     deleteItemConfirm () {
       this.desserts.splice(this.editedIndex, 1)
       const  mess = {'poster_id':this.editedItem.poster_id}
-      this.axios.post('/api/userPoster/DelPoster', JSON.stringify(mess))
+      this.axios.post(this.url+'userPoster/DelPoster', JSON.stringify(mess))
       this.mess = "删除成功"
       this.bar = true
       this.closeDelete()
@@ -483,7 +483,7 @@ export default {
       else{
         if (this.editedIndex > -1) {
           /*修改*/
-          this.axios.post('/api/userPoster/changePoster', JSON.stringify(this.editedItem)).then(res => {
+          this.axios.post(this.url+'userPoster/changePoster', JSON.stringify(this.editedItem)).then(res => {
             this.mess = res.data["mess"]
             this.bar = true
             if(this.mess==="修改成功"){
@@ -497,7 +497,7 @@ export default {
           /*增加*/
             const  mess = this.editedItem
             mess.admin_loginname = this.login
-            this.axios.post('/api/userPoster/AddPoster', JSON.stringify(mess)).then(res => {
+            this.axios.post(this.url+'userPoster/AddPoster', JSON.stringify(mess)).then(res => {
               this.mess = res.data["mess"]
               this.bar = true
               if(this.mess==="添加成功"){
@@ -514,6 +514,7 @@ export default {
   },
 
   data: () => ({
+    url: process.env.VUE_APP_API,
     load:true,
     id:window.sessionStorage.getItem("identity"),
     mess:"",

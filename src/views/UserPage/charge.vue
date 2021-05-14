@@ -241,6 +241,7 @@ export default {
     }
   },
   data: () => ({
+    url: process.env.VUE_APP_API,
     load:true,
     mess:"",bar:false,
     modal: false, search:"", sortBy:"charge_ddl", sortDesc:false, dialog: false, dialogDelete: false,
@@ -302,14 +303,14 @@ export default {
       this.load=true
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
-      this.axios.get('/api/userCharge/queryUserCharge')
+      this.axios.get(this.url+'userCharge/queryUserCharge')
           .then(res => {
             this.desserts=res.data;
             this.loadin=!this.loadin;
           },res => {
             console.log(res);
           })
-      this.axios.get('/api/userCharge/queryCustName')
+      this.axios.get(this.url+'userCharge/queryCustName')
           .then(res => {
             this.custname=res.data;
           },res => {
@@ -331,7 +332,7 @@ export default {
 
     deleteItemConfirm () {
       this.desserts.splice(this.editedIndex, 1)
-      this.axios.post('/api/userCharge/DelCharge', JSON.stringify(this.editedItem))
+      this.axios.post(this.url+'userCharge/DelCharge', JSON.stringify(this.editedItem))
       this.mess = "删除成功"
       this.bar = true
       this.closeDelete()
@@ -361,12 +362,12 @@ export default {
       else{
         if (this.editedIndex > -1) {
           /*修改*/
-          this.axios.post('/api/userCharge/changeCharge', JSON.stringify(this.editedItem))
+          this.axios.post(this.url+'userCharge/changeCharge', JSON.stringify(this.editedItem))
           this.mess = "修改成功"
           this.bar = true
         } else {
           /*增加*/
-          this.axios.post('/api/userCharge/AddCharge', JSON.stringify(this.editedItem))
+          this.axios.post(this.url+'userCharge/AddCharge', JSON.stringify(this.editedItem))
           this.mess = "添加缴费记录成功"
           this.bar = true
         }

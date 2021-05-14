@@ -215,6 +215,7 @@ import { required,maxLength,minLength,alphaNum,numeric} from 'vuelidate/lib/vali
 export default {
   data: () => ({
     /*    nowDate:new Date().toLocaleDateString(),*/
+    url: process.env.VUE_APP_API,
     load:true,
     mess:"",bar:false,resetbar:false,
     floor:['1','2','3','4','5','6','7','8'],
@@ -309,7 +310,7 @@ export default {
       this.load = true
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
-      this.axios.get('/api/userCust/queryCust')
+      this.axios.get(this.url+'userCust/queryCust')
           .then(res => {
             this.desserts=res.data;
             this.loadin=!this.loadin;
@@ -322,7 +323,7 @@ export default {
     resetPassConfirm(){
       this.resetbar = false
       var mess={'id':this.editedItem.cust_id , 'name':this.editedItem.cust_name}
-      this.axios.post('/api/userCust/resetPass', JSON.stringify(mess))
+      this.axios.post(this.url+'userCust/resetPass', JSON.stringify(mess))
           .then(res => {
             this.resetpass = res.data;
           },res => {
@@ -347,7 +348,7 @@ export default {
 
     deleteItemConfirm () {
       var  mess = {'id':this.editedItem.cust_id}
-      this.axios.post('/api/userCust/DelCust', JSON.stringify(mess)).then(res=>{
+      this.axios.post(this.url+'userCust/DelCust', JSON.stringify(mess)).then(res=>{
         this.mess =res.data
       },res=>{
         console.log(res);
@@ -380,7 +381,7 @@ export default {
       else{
         if (this.editedIndex > -1) {
         /*修改*/
-        this.axios.post('/api/userCust/changeCustMess', JSON.stringify(this.editedItem))
+        this.axios.post(this.url+'userCust/changeCustMess', JSON.stringify(this.editedItem))
           .then(res=>{
             var mass = res.data
             if(mass ==="该地址已有业主，请重新设置"||mass === "姓名重复，请重新设置"){
@@ -402,7 +403,7 @@ export default {
         var mess = this.editedItem
         delete  mess.cust_addr
         delete  mess.cust_id
-        this.axios.post('/api/userCust/AddCust', JSON.stringify(mess))
+        this.axios.post(this.url+'userCust/AddCust', JSON.stringify(mess))
             .then(res => {
               var mass = res.data
               if(mass ==="用户名重复请重新设置"||mass ==="该地址已有业主，请重新设置"){

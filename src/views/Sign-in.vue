@@ -1,7 +1,7 @@
 <template>
   <v-img
       class="fill-height"
-      src="../static/img/background.jpg"
+      src="https://img-1304904413.cos.ap-hongkong.myqcloud.com/2021/05/12/13:58:58.jpg"
       :aspect-ratio="16 / 9"
       height="100vh"
       width="100vw"
@@ -98,6 +98,7 @@
 export default {
   data () {
     return {
+      url: process.env.VUE_APP_API,
       show1:false,
       signin:{
         choose:"",
@@ -111,7 +112,7 @@ export default {
   },
   methods:{
     asd:function (){
-      this.axios.post('/api/common/signin', JSON.stringify(this.signin)
+      this.axios.post(this.url+'common/signin', JSON.stringify(this.signin)
       ).then(res => {//true
         if(res.data["flag"]==="error"){
           this.mess = res.data["mess"];

@@ -173,6 +173,7 @@ export default {
     }
   },
   data: () => ({
+    url: process.env.VUE_APP_API,
     load:true,
     mess:"",bar:false,
     modal: false,
@@ -230,7 +231,7 @@ export default {
       this.load = true
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
-      this.axios.get('/api/userFix/queryUserFix')
+      this.axios.get(this.url+'userFix/queryUserFix')
           .then(res => {
             this.desserts=res.data;
             this.loadin=!this.loadin;
@@ -265,7 +266,7 @@ export default {
     deleteItemConfirm () {
       this.desserts.splice(this.editedIndex, 1)
       var delfix = {'id':this.editedItem.fix_id}
-      this.axios.post('/api/userFix/DelFix', JSON.stringify(delfix))
+      this.axios.post(this.url+'userFix/DelFix', JSON.stringify(delfix))
       this.mess = "删除成功"
       this.bar = true
       this.closeDelete()
@@ -297,7 +298,7 @@ export default {
         delete mess.fix_status
         delete mess.admin_name
         delete mess.admin_id
-        this.axios.post('/api/userFix/changeFix', JSON.stringify(mess))
+        this.axios.post(this.url+'userFix/changeFix', JSON.stringify(mess))
         this.mess = "修改成功"
         this.bar = true
         this.initialize()
