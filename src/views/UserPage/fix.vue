@@ -101,11 +101,11 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close">
-                Cancel
+                取 消
               </v-btn>
 
               <v-btn color="blue darken-1" text @click="save">
-                Save
+                保 存
               </v-btn>
             </v-card-actions>
 
@@ -117,8 +117,8 @@
             <v-card-text>确定要删除本条维修记录吗?</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+              <v-btn color="blue darken-1" text @click="closeDelete">取 消</v-btn>
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm">确 定</v-btn>
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
@@ -155,7 +155,7 @@
             v-bind="attrs"
             @click="bar = false"
         >
-          Close
+          关 闭
         </v-btn>
       </template>
     </v-snackbar>

@@ -106,9 +106,9 @@
                 </v-container>
               </v-card-text>
               <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+                <v-spacer/>
+                <v-btn color="blue darken-1" text @click="close">关 闭</v-btn>
+                <v-btn color="blue darken-1" text @click="save">保 存</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -188,8 +188,8 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer/>
-          <v-btn color="blue darken-1" text @click="closelog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="savelog">Save</v-btn>
+          <v-btn color="blue darken-1" text @click="closelog">取 消</v-btn>
+          <v-btn color="blue darken-1" text @click="savelog">发 送</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -200,9 +200,9 @@
         <v-card-text>确定要删除该信息吗?</v-card-text>
         <v-card-actions>
           <v-spacer/>
-          <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
-          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="closeDelete">取 消</v-btn>
+          <v-btn color="blue darken-1" text @click="deleteItemConfirm">确 定</v-btn>
+          <v-spacer/>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -230,7 +230,7 @@
             v-bind="attrs"
             @click="bar = false"
         >
-          Close
+          关 闭
         </v-btn>
       </template>
     </v-snackbar>
@@ -246,7 +246,7 @@
             v-bind="attrs"
             @click="resetPassConfirm"
         >
-          确定
+          确 定
         </v-btn>
       </template>
     </v-snackbar>

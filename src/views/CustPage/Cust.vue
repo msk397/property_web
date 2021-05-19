@@ -147,7 +147,7 @@
       <v-dialog v-model="dialog" persistent max-width="600px">
         <v-card>
           <v-card-title>
-            <span class="headline">User Profile</span>
+            <span class="headline">用户信息</span>
           </v-card-title>
           <v-card-text>
             <v-container>
@@ -209,7 +209,7 @@
               v-bind="attrs"
               @click="show = false"
           >
-            Close
+            关 闭
           </v-btn>
         </template>
       </v-snackbar>
@@ -226,7 +226,7 @@
               v-bind="attrs"
               @click="showlog = false"
           >
-            Close
+            关 闭
           </v-btn>
         </template>
       </v-snackbar>

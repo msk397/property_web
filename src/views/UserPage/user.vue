@@ -134,7 +134,7 @@
         <v-dialog v-model="dialog" persistent max-width="600px">
           <v-card>
             <v-card-title>
-              <span class="headline">User Profile</span>
+              <span class="headline">用户信息</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -199,7 +199,7 @@
               v-bind="attrs"
               @click="show = false"
           >
-            Close
+            关 闭
           </v-btn>
         </template>
       </v-snackbar>
@@ -216,7 +216,7 @@
               v-bind="attrs"
               @click="showlog = false"
           >
-            Close
+            关 闭
           </v-btn>
         </template>
       </v-snackbar>
@@ -224,7 +224,7 @@
       <v-dialog v-model="changepass" persistent max-width="600px">
         <v-card>
           <v-card-title>
-            <span class="headline">Change Password</span>
+            <span class="headline">修改密码</span>
           </v-card-title>
           <v-card-text>
             <v-container>
@@ -273,9 +273,9 @@
             <small>带*为必填项</small>
           </v-card-text>
           <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="change_Pass">保 存</v-btn>
+            <v-spacer/>
             <v-btn color="blue darken-1" text @click="close">关 闭</v-btn>
+            <v-btn color="blue darken-1" text @click="change_Pass">保 存</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>

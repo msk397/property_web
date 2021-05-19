@@ -241,7 +241,7 @@
                   counter
                   chips
                   truncate-length="15"
-                  accept=".jpg"
+                  accept="image/*"
                   @change="see"
                   v-model="fileInfo"
                   :error-messages="fileErrors"
@@ -258,7 +258,6 @@
               识别中
             </v-col>
               <v-progress-linear
-
                   v-if="viewquary === null"
                   color="primary accent-4"
                   indeterminate
@@ -271,9 +270,12 @@
               readonly
               label="识别结果"
               v-model="viewquary"
+                :error-messages="quaryErrors"
+                @input="$v.viewquary.$touch()"
+                @blur="$v.viewquary.$touch()"
           ></v-text-field>
           </v-col>
-          <small>*indicates required field</small>
+          <small>带*为必填项</small>
         </v-card-text>
         <v-card-actions>
           <v-spacer/>
@@ -289,7 +291,7 @@
               text
               @click="postsign"
           >
-            Save
+            签 发
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -307,7 +309,7 @@
             v-bind="attrs"
             @click="bar1 = false"
         >
-          Close
+          关 闭
         </v-btn>
       </template>
     </v-snackbar>
@@ -375,12 +377,19 @@ export default {
   mixins: [validationMixin],
   validations: {
     fileInfo:{required},
+    viewquary:{required},
   },
   computed:{
     fileErrors() {
       const errors = []
       if (!this.$v.fileInfo.$dirty) return errors
       !this.$v.fileInfo.required && errors.push('文件不可为空')
+      return errors
+    },
+    quaryErrors(){
+      const errors = []
+      if (!this.$v.viewquary.$dirty) return errors
+      !this.$v.viewquary.required && errors.push('不可为空')
       return errors
     },
   },
@@ -400,7 +409,7 @@ export default {
 
     },
     see(file) {
-      if (!(this.$v.$invalid||this.$v.$error)){
+      if (!(this.$v.fileInfo.$invalid||this.$v.fileInfo.$error)){
         this.viewquary = null
         var reader = new FileReader()
         reader.readAsDataURL(file)
@@ -498,17 +507,22 @@ export default {
       this.dialog = true
     },
     postsign(){
-      var mess = {"id":this.editedItem.poster_id}
-      this.axios.post(this.url+'user/postsign', JSON.stringify(mess))
-          .then(res => {
-            this.mess = res.data["mess"]
-            this.bar1 = true
-            this.close()
-            this.initialize()
-          },res => {
-            console.log(res);
-          })
-
+      if(this.$v.viewquary.$invalid||this.$v.viewquary.$error||
+          this.$v.fileInfo.$invalid||this.$v.fileInfo.$error){
+        this.$v.$touch()
+      }
+      else {
+        var mess = {"id": this.editedItem.poster_id}
+        this.axios.post(this.url + 'user/postsign', JSON.stringify(mess))
+            .then(res => {
+              this.mess = res.data["mess"]
+              this.bar1 = true
+              this.close()
+              this.initialize()
+            }, res => {
+              console.log(res);
+            })
+      }
     },
   },
 };
