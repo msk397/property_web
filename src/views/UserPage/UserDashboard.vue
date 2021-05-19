@@ -418,7 +418,10 @@ export default {
           var mess = {"base":this.iconBase64}
           this.axios.post(this.url+'user/view',JSON.stringify(mess))
           .then(res=>{
-              this.viewquary = res.data
+            console.log(res.data)
+              this.viewquary = res.data['res']
+              this.mess = res.data["mess"]
+              this.bar1 = true
           })
         }
         reader.onerror = function (error) {
