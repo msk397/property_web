@@ -17,14 +17,24 @@ const routes = [
     component: () => import("../views/UserPage/user"),
     children: [
       {
-        path: "/user",
-        name: "user-dashboard",
+        path: "/user/",
+        name: "user-adminlist",
         meta:{
           title: '物业管理系统-管理员首页'
         },
         component: () =>
-            import("../views/UserPage/UserDashboard"),
-      }, {
+            import("../views/UserPage/adminlist"),
+      },
+      {
+        path: "/user/fixer",
+        name: "user-fixer",
+        meta:{
+          title: '物业管理系统-维修人员管理'
+        },
+        component: () =>
+            import("../views/UserPage/fixer"),
+      },
+      {
         path: "/user/charge",
         name: "user-charge",
         meta:{

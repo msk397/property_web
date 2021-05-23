@@ -296,7 +296,8 @@ import {
   mdiHammerScrewdriver,
   mdiAccountTie,
   mdiEmailMarkAsUnread,
-  mdiEmailOpen
+  mdiEmailOpen,
+  mdiHammer
 } from '@mdi/js'
 export default {
   data (){
@@ -316,6 +317,7 @@ export default {
       drawer: [
         {title: "首页", icon: "mdi-home", to: "/user",},
         {title: "业主信息", icon: mdiAccountCircle, to: "/user/custmess",},
+        {title: "维修人员管理", icon: mdiHammer, to: "/user/fixer",},
         {title: "收费管理", icon: "mdi-cash-100", to: "/user/charge",},
         {title: "报修管理", icon: mdiHammerScrewdriver, to: "/user/fix",},
         {title: "公告管理", icon: mdiPost, to: "/user/poster",},
@@ -323,6 +325,7 @@ export default {
       draweroot: [
         {title: "首页", icon: "mdi-home", to: "/user",},
         {title: "员工管理", icon: mdiAccountTie, to: "/user/adminmess",},
+        {title: "维修人员管理", icon: mdiHammer, to: "/user/fixer",},
         {title: "业主信息", icon: mdiAccountCircle, to: "/user/custmess",},
         {title: "收费管理", icon: "mdi-cash-100", to: "/user/charge",},
         {title: "报修管理", icon: mdiHammerScrewdriver, to: "/user/fix",},

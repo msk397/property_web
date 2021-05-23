@@ -145,7 +145,7 @@
                         v-model="editedItem.charge_memo"
                     ></v-select>
                   </v-col>
-                  <v-spacer></v-spacer>
+                  <v-spacer/>
                   <v-col cols="12" sm="6" md="4">
                     <v-switch
                         v-model="editedItem.status"
@@ -204,6 +204,12 @@
         </v-btn>
       </template><span>删 除</span>
       </v-tooltip>
+      <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
+      <v-btn v-if="item.charge_status==='未缴费'" icon color="error" class="elevation-5 ma-1" @click="moneyalert(item)">
+        <v-icon small v-bind="attrs" v-on="on" >{{mdiSend}}</v-icon>
+      </v-btn>
+    </template><span>发送通知</span>
+    </v-tooltip>
     </template>
 
 
@@ -231,6 +237,7 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required,decimal,minValue } from 'vuelidate/lib/validators'
+import {mdiSend} from "@mdi/js";
 export default {
   mixins: [validationMixin],
   validations: {
@@ -240,6 +247,7 @@ export default {
     }
   },
   data: () => ({
+    mdiSend:mdiSend,
     url: process.env.VUE_APP_API,
     load:true,
     mess:"",bar:false,
@@ -291,6 +299,23 @@ export default {
     this.initialize()
   },
   methods: {
+    moneyalert(item){
+      item['name'] = item.cust_name
+      delete item.charge_status
+      delete item.charge_time
+      delete item.cust_addr
+      delete item.cust_name
+      delete item.status
+      console.log(item)
+      this.axios.post(this.url+'user/moneyalert', JSON.stringify(item))
+          .then(res => {
+            this.mess = res.data["mess"]
+            this.bar = true
+            this.initialize()
+          },res => {
+            console.log(res);
+          })
+    },
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
 
     getColor (calories) {
