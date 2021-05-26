@@ -236,19 +236,19 @@
         </v-img>
 
         <v-card-text class="text--primary">
-            <v-col>
-              <v-file-input
-                  counter
-                  chips
-                  truncate-length="15"
-                  accept="image/*"
-                  @change="see"
-                  v-model="fileInfo"
-                  :error-messages="fileErrors"
-                  @input="$v.fileInfo.$touch()"
-                  @blur="$v.fileInfo.$touch()"
-              ></v-file-input>
-            </v-col>
+          <v-col>
+            <v-file-input
+                counter
+                chips
+                truncate-length="15"
+                accept="image/*"
+                @change="see"
+                v-model="fileInfo"
+                :error-messages="fileErrors"
+                @input="$v.fileInfo.$touch()"
+                @blur="$v.fileInfo.$touch()"
+            ></v-file-input>
+          </v-col>
           <v-col>
             <v-col
                 class="subtitle-1 text-center"
@@ -257,23 +257,23 @@
             >
               识别中
             </v-col>
-              <v-progress-linear
-                  v-if="viewquary === null"
-                  color="primary accent-4"
-                  indeterminate
-                  rounded
-                  height="6"
-              ></v-progress-linear>
+            <v-progress-linear
+                v-if="viewquary === null"
+                color="primary accent-4"
+                indeterminate
+                rounded
+                height="6"
+            ></v-progress-linear>
             <v-text-field
                 v-if="viewquary !== null"
-              outlined
-              readonly
-              label="识别结果"
-              v-model="viewquary"
+                outlined
+                readonly
+                label="识别结果"
+                v-model="viewquary"
                 :error-messages="quaryErrors"
                 @input="$v.viewquary.$touch()"
                 @blur="$v.viewquary.$touch()"
-          ></v-text-field>
+            ></v-text-field>
           </v-col>
           <small>带*为必填项</small>
         </v-card-text>
@@ -418,7 +418,6 @@ export default {
           var mess = {"base":this.iconBase64}
           this.axios.post(this.url+'user/view',JSON.stringify(mess))
           .then(res=>{
-            console.log(res.data)
               this.viewquary = res.data['res']
               this.mess = res.data["mess"]
               this.bar1 = true

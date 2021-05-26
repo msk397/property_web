@@ -98,10 +98,17 @@
           </template>
           <v-list  rounded >
 
-            <v-list-item v-for="item in log" :key="item.log_id" @click="unreadmail(item)" two-line>
+            <v-list-item v-if="logcount===0">
+              <v-spacer/>
               <v-list-item-content>
-              <v-list-item-title >{{ item.log_title }}</v-list-item-title>
-              <v-list-item-subtitle>{{item.log_time}}</v-list-item-subtitle>
+                <v-list-item-title >暂无通知</v-list-item-title>
+              </v-list-item-content>
+              <v-spacer/>
+            </v-list-item>
+            <v-list-item v-else v-for="item in log" :key="item.log_id" @click="unreadmail(item)" two-line>
+              <v-list-item-content>
+                <v-list-item-title >{{ item.log_title }}</v-list-item-title>
+                <v-list-item-subtitle>{{item.log_time}}</v-list-item-subtitle>
               </v-list-item-content>
               <v-spacer/>
               <v-icon v-if="item.log_status===0">{{unreadmailicon}}</v-icon>

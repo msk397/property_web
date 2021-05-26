@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="isRouterAlive">
   <v-data-table
       :headers="headers"
       :items="desserts"
@@ -19,10 +19,49 @@
         <v-btn
             color="primary"
             class="mb-2 elevation-5"
+            @click="trigger"
+        >批量导入信息
+          <input
+              type="file"
+              ref="excel"
+              accept=".xls,.xlsx"
+              @change="getFile($event)"
+              style="display:none"
+          />
+        </v-btn>
+        <v-divider class="mx-4" inset vertical></v-divider>
+        <v-btn
+            color="primary"
+            class="mb-2 elevation-5"
             @click="dialog = true"
         >
           添加信息
         </v-btn>
+
+        <v-dialog
+            v-model="barss"
+            persistent
+            max-width="290"
+        >
+          <v-card>
+            <v-card-title class="headline">
+              批量导入反馈信息
+            </v-card-title>
+            <v-card-text v-for="item in messss">{{item['mess']}}</v-card-text>
+            <v-card-actions>
+              <v-spacer/>
+              <v-btn
+                  color="primary darken-1"
+                  text
+                  @click="refresh"
+              >
+                关 闭
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+
         <v-dialog v-model="dialog" max-width="500px">
           <v-card>
             <v-card-title>
@@ -190,6 +229,7 @@
         </v-btn>
       </template>
     </v-snackbar>
+
     <v-snackbar
         top
         v-model="resetbar"
@@ -214,9 +254,11 @@ import { validationMixin } from 'vuelidate'
 import { required,maxLength,minLength,alphaNum,numeric} from 'vuelidate/lib/validators'
 export default {
   data: () => ({
+    isRouterAlive:true,
     /*    nowDate:new Date().toLocaleDateString(),*/
     url: process.env.VUE_APP_API,
     load:true,
+    messss:"",barss:false,
     mess:"",bar:false,resetbar:false,
     floor:['1','2','3','4','5','6','7','8'],
     reset:false,
@@ -301,6 +343,26 @@ export default {
   },
 
   methods: {
+    refresh() {
+      this.barss=false
+      this.initialize()
+      this.isRouterAlive = false
+      this.$nextTick(function () {
+        this.isRouterAlive = true
+      })
+    },
+    getFile(event) {
+       var formdata= new FormData()
+      formdata.append('file',event.target.files[0])
+      formdata.append('action','test')
+      this.axios.post(this.url+'userCust/addmore',formdata).then(res=>{
+        this.messss =res.data
+        this.barss = true
+      })
+    },
+    trigger() {
+      return this.$refs.excel.dispatchEvent(new MouseEvent("click"));
+    },
     allowedDates: val => Date.parse(val) > Date.now() - 8.64e7,
     setpass(){
       this.reset = false
@@ -419,13 +481,10 @@ export default {
                 this.close()
                 this.$v.$reset()
               }
-
             },res => {
               console.log(res);
             })
-
       }
-
       }
     },
   },
