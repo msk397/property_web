@@ -28,6 +28,7 @@
             <v-timeline
                 align-top
                 dense
+                v-if="queryend === true"
             >
               <v-timeline-item
                   v-for="(item, i) in tl"
@@ -51,6 +52,11 @@
                 </div>
               </v-timeline-item>
             </v-timeline>
+            <v-progress-circular
+                indeterminate
+                color="primary"
+                v-else
+            ></v-progress-circular>
           </v-card-text>
 
           <v-card-actions>
@@ -254,6 +260,7 @@ export default {
     }
   },
   data: () => ({
+    queryend:false,
     tl:[],
     dialogfixlog:false,
     mdiTimelineTextOutline:mdiTimelineTextOutline,
@@ -315,7 +322,7 @@ export default {
           .then(res => {
             this.tl=res.data;
             this.loadin=!this.loadin;
-            this.dialogfixlog = true
+            this.queryend = true
           },res => {
             console.log(res);
           })

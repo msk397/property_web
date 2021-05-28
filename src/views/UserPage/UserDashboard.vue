@@ -514,16 +514,22 @@ export default {
         this.$v.$touch()
       }
       else {
-        var mess = {"id": this.editedItem.poster_id}
-        this.axios.post(this.url + 'user/postsign', JSON.stringify(mess))
-            .then(res => {
-              this.mess = res.data["mess"]
-              this.bar1 = true
-              this.close()
-              this.initialize()
-            }, res => {
-              console.log(res);
-            })
+        if(this.viewquary===window.sessionStorage.getItem("name")){
+          var mess = {"id": this.editedItem.poster_id}
+          this.axios.post(this.url + 'user/postsign', JSON.stringify(mess))
+              .then(res => {
+                this.mess = res.data["mess"]
+                this.bar1 = true
+                this.close()
+                this.initialize()
+              }, res => {
+                console.log(res);
+              })
+        }else{
+          this.mess = "识别到的文字不是老板姓名，请重新上传文件"
+          this.bar1 = true
+        }
+
       }
     },
   },

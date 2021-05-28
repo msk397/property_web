@@ -148,6 +148,7 @@
                   <v-spacer/>
                   <v-col cols="12" sm="6" md="4">
                     <v-switch
+                        v-if="editedIndex !== -1"
                         v-model="editedItem.status"
                         label="是否已缴费"
                     ></v-switch>
