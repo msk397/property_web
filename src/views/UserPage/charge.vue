@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="isRouterAlive">
   <v-data-table
       :headers="headers"
       :items="desserts"
@@ -44,10 +44,46 @@
         <v-btn
             color="primary"
             class="mb-2 elevation-5"
+            @click="trigger"
+        >批量导入信息
+          <input
+              type="file"
+              ref="excel"
+              accept=".xls,.xlsx"
+              @change="getFile($event)"
+              style="display:none"
+          />
+        </v-btn>
+        <v-divider class="mx-4" inset vertical></v-divider>
+        <v-btn
+            color="primary"
+            class="mb-2 elevation-5"
             @click="dialog = true"
         >
           添加缴费项目
         </v-btn>
+        <v-dialog
+            v-model="barss"
+            persistent
+            max-width="290"
+        >
+          <v-card>
+            <v-card-title class="headline">
+              批量导入反馈信息
+            </v-card-title>
+            <v-card-text v-for="item in messss">{{item['mess']}}</v-card-text>
+            <v-card-actions>
+              <v-spacer/>
+              <v-btn
+                  color="primary darken-1"
+                  text
+                  @click="refresh"
+              >
+                关 闭
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
         <v-dialog
             v-model="dialog"
             max-width="500px"
@@ -206,7 +242,7 @@
       </template><span>删 除</span>
       </v-tooltip>
       <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
-      <v-btn v-if="item.charge_status==='未缴费'" icon color="error" class="elevation-5 ma-1" @click="moneyalert(item)">
+      <v-btn :disabled="item.charge_status!=='未缴费'" icon color="error" class="elevation-5 ma-1" @click="moneyalert(item)">
         <v-icon small v-bind="attrs" v-on="on" >{{mdiSend}}</v-icon>
       </v-btn>
     </template><span>发送通知</span>
@@ -267,6 +303,8 @@ export default {
     editedItem: {cust_name: '', charge_status: '', charge_cost: '', charge_ddl: '', charge_memo:"", status:false,},
     defaultItem: {cust_name:'', charge_status:false, charge_cost: '', charge_ddl: new Date().toJSON().substring(0, 10),
       charge_memo:'电费', status: false,},
+    messss:"",barss:false,
+    isRouterAlive:true,
   }),
 
   computed: {
@@ -300,6 +338,26 @@ export default {
     this.initialize()
   },
   methods: {
+    refresh() {
+      this.barss=false
+      this.initialize()
+      this.isRouterAlive = false
+      this.$nextTick(function () {
+        this.isRouterAlive = true
+      })
+    },
+    getFile(event) {
+      var formdata= new FormData()
+      formdata.append('file',event.target.files[0])
+      formdata.append('action','test')
+      this.axios.post(this.url+'userCharge/addmore',formdata).then(res=>{
+        this.messss =res.data
+        this.barss = true
+      })
+    },
+    trigger() {
+      return this.$refs.excel.dispatchEvent(new MouseEvent("click"));
+    },
     moneyalert(item){
       item['name'] = item.cust_name
       delete item.charge_status
@@ -326,8 +384,6 @@ export default {
 
     initialize () {
       this.load=true
-      this.editedItem = Object.assign({}, this.defaultItem)
-      this.editedIndex = -1
       this.axios.get(this.url+'userCharge/queryUserCharge')
           .then(res => {
             this.desserts=res.data;
@@ -338,10 +394,14 @@ export default {
       this.axios.get(this.url+'userCharge/queryCustName')
           .then(res => {
             this.custname=res.data;
+            this.defaultItem['cust_name']=this.custname[0]
+            this.editedItem = Object.assign({}, this.defaultItem)
           },res => {
             console.log(res);
           })
       this.load = false
+      this.editedItem = Object.assign({}, this.defaultItem)
+      this.editedIndex = -1
     },
     editItem (item) {
       this.editedIndex = this.desserts.indexOf(item)

@@ -67,6 +67,9 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+
+
       <v-toolbar flat>
         <v-toolbar-title>维修详情</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
@@ -140,7 +143,7 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-spacer></v-spacer>
+              <v-spacer/>
               <v-btn color="blue darken-1" text @click="close">
                 取 消
               </v-btn>
@@ -174,7 +177,7 @@
           min-width="150"
       >
         <template v-slot:activator="{ on, attrs }">
-        <v-btn  v-bind="attrs" v-on="on" v-if="item.fix_status==='未处理'" icon color="error" class="elevation-5 ma-2">
+        <v-btn  v-bind="attrs" v-on="on" :disabled="item.fix_status!=='未处理'" icon color="error" class="elevation-5 ma-2">
           <v-icon small >{{mdiHandPointingRight}}</v-icon>
         </v-btn>
         </template>
@@ -220,7 +223,7 @@
       </template><span>修改信息</span>
       </v-tooltip>
       <v-tooltip bottom :open-delay="300"><template v-slot:activator="{ on, attrs }">
-      <v-btn  v-if="item.fix_status!=='未处理'" icon color="primary" class="elevation-5 ma-2" @click="timelineItem(item)">
+      <v-btn icon color="primary" class="elevation-5 ma-2" @click="timelineItem(item)">
         <v-icon small v-bind="attrs" v-on="on" >{{mdiTimelineTextOutline}}</v-icon>
       </v-btn>
     </template><span>查看时间线</span>
@@ -316,12 +319,12 @@ export default {
 
   methods: {
     timelineItem(item){
+      this.queryend = false
       this.dialogfixlog = true
       var mess = {'id':item.fix_id}
       this.axios.post(this.url+'userFix/queryFixlog',JSON.stringify(mess))
           .then(res => {
             this.tl=res.data;
-            this.loadin=!this.loadin;
             this.queryend = true
           },res => {
             console.log(res);
